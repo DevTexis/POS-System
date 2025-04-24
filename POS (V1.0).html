@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple POS System (HTML/JS) - Refund Edit</title>
+    <style>
+        body { font-family: sans-serif; font-size: 10pt; }
+        .container { width: 600px; margin: 10px auto; padding: 10px; border: 1px solid #eee; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
+        .input-area, .item-list-area, .total-area, .payment-area, .status-area { margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; }
+        label { display: inline-block; width: auto; margin-right: 5px; margin-bottom: 5px; font-weight: bold;}
+        .input-area input[type="text"] { width: calc(100% - 150px); padding: 5px; margin-bottom: 5px; }
+        #loginPrompt input[type="text"] { width: calc(100% - 180px); }
+
+        select { width: 100%; height: 150px; font-family: monospace; margin-top: 5px; }
+        button { padding: 8px 15px; margin: 5px 2px; cursor: pointer; }
+        .total-display { font-size: 1.5em; font-weight: bold; color: #006400; margin-left: 10px; }
+        .total-display.negative { color: #cc0000; }
+        .status { color: blue; }
+        .error { color: red; font-weight: bold; }
+        #btnClear { float: right; background-color: #ffdddd;}
+        #btnLogout { float: right; background-color: #ddeeff; margin-right: 5px; }
+        #btnRefundMode { background-color: #f0f0f0; }
+        #btnFinishRefund { background-color: #f0f0f0; }
+
+        /* Class to hide elements */
+        .hidden { display: none; }
+
+        /* Login prompt area */
+        #loginPrompt { text-align: center; padding: 20px; border: 1px dashed #aaa; margin-bottom: 15px; background-color: #f9f9f9;}
+        #loginPrompt label { width: auto; margin-right: 10px; font-weight: bold;}
+
+        /* Item action buttons */
+        .item-actions { margin-top: 10px; text-align: right; }
+        .item-actions button { padding: 5px 10px; font-size: 0.9em; }
+        #btnDeleteSelected { background-color: #ffcccc; }
+        #btnChangePrice { background-color: #ccffcc; }
+
+        /* Refund mode indicators */
+        #refundIndicator {
+            font-weight: bold;
+            color: #cc0000;
+            text-align: center;
+            padding: 5px;
+            background-color: #fff0f0;
+            border: 1px solid #cc0000;
+            margin-bottom: 5px; /* Reduced margin */
+        }
+        /* --- NEW: Refund Auth Prompt Styling --- */
+        #refundAuthPrompt {
+            background-color: #28a745; /* Green */
+            color: white;
+            padding: 8px;
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+        /* --- */
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Simple POS System (HTML/JS) - Refund Edit</h2>
+    <button id="btnLogout" class="hidden">Logout</button>
+    <button id="btnRefundMode" class="hidden">Refund Mode</button>
+    <button id="btnFinishRefund" class="hidden">Finish Refund / Back to Sale</button>
+
+    <div id="loginPrompt">
+         <label for="txtBarcodeLogin">Scan Staff Barcode:</label>
+         <input type="text" id="txtBarcodeLogin" name="txtBarcodeLogin" autocomplete="off">
+         <p>Scan your staff barcode to begin.</p>
+    </div>
+
+    <div id="posContainer" class="hidden">
+
+        <div id="refundIndicator" class="hidden">-- REFUND MODE ACTIVE --</div>
+        <div id="refundAuthPrompt" class="hidden auth-prompt">Scan Staff Barcode for Refund Authorization</div>
+        <div class="input-area">
+            <label id="lblBarcode" for="txtBarcode">Scan Item/Loyalty:</label><br>
+            <input type="text" id="txtBarcode" name="txtBarcode" autocomplete="off">
+            <button id="btnAddManual">Add Manually</button> </div>
+
+        <div class="item-list-area">
+            <b>Current Items:</b><br>
+            <select size="10" id="lstItems" name="lstItems">
+                </select>
+            <div id="itemActionsContainer" class="item-actions">
+                <button id="btnChangePrice">Change Price</button>
+                <button id="btnDeleteSelected">Delete Selected</button>
+            </div>
+        </div>
+
+        <div class="total-area">
+            <b id="lblTotal">Total:</b> <span id="spnTotal" class="total-display">£0.00</span>
+        </div>
+
+        <div class="payment-area">
+            <b id="lblPaymentMethod">Payment Method:</b><br>
+            <button id="btnCash">Cash</button>
+            <button id="btnCard">Card</button>
+            <button id="btnVoucher">Voucher</button> <button id="btnClear">Clear Sale</button> </div>
+    </div> <div class="status-area">
+        <b>Status:</b> <span id="divStatus" class="status">Initializing...</span>
+    </div>
+
+</div>
+
+<script>
+    // --- Global Variables ---
+    let productDatabase;
+    let currentSaleItems = [];
+    let currentSaleData = [];
+    let currentTotal = 0.0;
+    const currencySymbol = '£';
+    const currencyFormatter = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' });
+
+    let scanTimeout = null;
+    const SCAN_DELAY_MS = 100;
+
+    // Login & Mode State
+    let isLoggedIn = false;
+    const STAFF_LOGIN_BARCODE = "Staff Login";
+    let isInRefundMode = false;
+    let isRefundAuthenticated = false;
+
+    // Loyalty Constants
+    const LOYALTY_BARCODE = "Loyalty001";
+    const DISCOUNT_IDENTIFIER = "DISCOUNT";
+
+    // DOM Element References (Grouped)
+    // Login/Logout
+    const loginPrompt = document.getElementById('loginPrompt');
+    const txtBarcodeLogin = document.getElementById('txtBarcodeLogin');
+    const btnLogout = document.getElementById('btnLogout');
+    // Main POS Container
+    const posContainer = document.getElementById('posContainer');
+    // Input Area
+    const lblBarcode = document.getElementById('lblBarcode');
+    const txtBarcode = document.getElementById('txtBarcode');
+    const btnAddManual = document.getElementById('btnAddManual');
+    // Item List Area
+    const lstItems = document.getElementById('lstItems');
+    const itemActionsContainer = document.getElementById('itemActionsContainer'); // Reference container
+    const btnDeleteSelected = document.getElementById('btnDeleteSelected');
+    const btnChangePrice = document.getElementById('btnChangePrice');
+    // Total Area
+    const lblTotal = document.getElementById('lblTotal');
+    const spnTotal = document.getElementById('spnTotal');
+    // Payment Area
+    const lblPaymentMethod = document.getElementById('lblPaymentMethod');
+    const btnCash = document.getElementById('btnCash');
+    const btnCard = document.getElementById('btnCard');
+    const btnVoucher = document.getElementById('btnVoucher');
+    const btnClear = document.getElementById('btnClear');
+    // Status Area
+    const divStatus = document.getElementById('divStatus');
+    // Refund Controls
+    const btnRefundMode = document.getElementById('btnRefundMode');
+    const btnFinishRefund = document.getElementById('btnFinishRefund');
+    const refundIndicator = document.getElementById('refundIndicator');
+    // --- NEW: Refund Auth Prompt Reference ---
+    const refundAuthPrompt = document.getElementById('refundAuthPrompt');
+    // ---
+
+
+    // --- Initialization ---
+    function initializePOS() {
+        console.log("Initializing POS...");
+        // Product DB Load
+        productDatabase = new Map();
+        productDatabase.set("Test Barcode", { description: "Test Barcode", price: 1.00 });
+        productDatabase.set("987654321098", { description: "Sample Item B", price: 5.75 });
+        productDatabase.set("112233445566", { description: "Another Product C", price: 19.99 });
+        productDatabase.set("555555555555", { description: "Widget X", price: 1.20 });
+        console.log("Product Database Loaded:", productDatabase);
+
+        // Attach Event Listeners
+        txtBarcodeLogin.addEventListener('input', handleBarcodeTyping);
+        txtBarcode.addEventListener('input', handleBarcodeTyping);
+        btnAddManual.addEventListener('click', handleScanOrInput);
+        btnCash.addEventListener('click', payByCash);
+        btnCard.addEventListener('click', payByCard);
+        btnVoucher.addEventListener('click', payByVoucher);
+        btnClear.addEventListener('click', clearSale);
+        btnLogout.addEventListener('click', showLoginScreen);
+        btnDeleteSelected.addEventListener('click', deleteSelectedItem);
+        btnChangePrice.addEventListener('click', changeSelectedItemPrice);
+        btnRefundMode.addEventListener('click', enterRefundMode);
+        btnFinishRefund.addEventListener('click', exitRefundMode);
+
+        // Start logged-out
+        showLoginScreen();
+        console.log("POS Initialized. Waiting for staff login.");
+    }
+
+    // --- Login/Logout/Mode UI Control ---
+    function showLoginScreen() {
+        console.log("Showing Login Screen");
+        isLoggedIn = false; isInRefundMode = false; isRefundAuthenticated = false;
+
+        // UI Updates
+        loginPrompt.classList.remove('hidden');
+        posContainer.classList.add('hidden');
+        btnLogout.classList.add('hidden');
+        btnRefundMode.classList.add('hidden');
+        btnFinishRefund.classList.add('hidden');
+        refundIndicator.classList.add('hidden');
+        refundAuthPrompt.classList.add('hidden'); // Hide refund auth prompt
+
+        // Clear data
+        lstItems.innerHTML = ""; currentSaleItems = []; currentSaleData = []; currentTotal = 0.0;
+        updateTotalDisplay();
+        setStatus("Please scan staff barcode to log in.", false);
+        txtBarcodeLogin.value = ""; txtBarcode.value = "";
+        txtBarcodeLogin.focus();
+        if (scanTimeout) { clearTimeout(scanTimeout); scanTimeout = null; }
+    }
+
+    function showPOSScreen() { // Return to Sale Mode
+        console.log("Showing POS Screen (Sale Mode)");
+        isLoggedIn = true; isInRefundMode = false; isRefundAuthenticated = false;
+
+        // UI Updates
+        loginPrompt.classList.add('hidden');
+        posContainer.classList.remove('hidden');
+        btnLogout.classList.remove('hidden');
+        btnRefundMode.classList.remove('hidden');
+        btnFinishRefund.classList.add('hidden');
+        refundIndicator.classList.add('hidden');
+        refundAuthPrompt.classList.add('hidden'); // Hide refund auth prompt
+
+        // Show normal sale buttons/elements
+        lblBarcode.textContent = "Scan Item/Loyalty:";
+        lblTotal.textContent = "Total:";
+        lblPaymentMethod.textContent = "Payment Method:";
+        itemActionsContainer.classList.remove('hidden'); // Show item actions
+        btnAddManual.classList.remove('hidden');
+        btnCash.classList.remove('hidden');
+        btnCard.classList.remove('hidden');
+        btnVoucher.classList.remove('hidden');
+        btnClear.classList.remove('hidden');
+
+        clearSale();
+        setStatus("Ready for next scan.", false);
+        txtBarcode.value = "";
+        txtBarcode.focus();
+    }
+
+    function enterRefundMode() {
+        if (!isLoggedIn) { alert("Error: Must be logged in."); return; }
+        if (currentSaleData.length > 0 && !confirm("Entering refund mode clears the current sale. Continue?")) {
+             return;
+        }
+
+        console.log("Entering Refund Mode - Awaiting Staff Auth");
+        clearSale();
+
+        isInRefundMode = true;
+        isRefundAuthenticated = false;
+
+        // Update UI for Refund Auth Step
+        refundIndicator.classList.remove('hidden');
+        refundAuthPrompt.classList.remove('hidden'); // *** Show Auth Prompt ***
+        btnRefundMode.classList.add('hidden');
+        btnFinishRefund.classList.remove('hidden');
+        itemActionsContainer.classList.remove('hidden'); // *** Keep Item Actions visible ***
+        btnAddManual.classList.add('hidden'); // Hide manual add
+        btnVoucher.classList.add('hidden');
+        btnClear.classList.add('hidden');
+        lblBarcode.textContent = "Scan Staff Barcode for Refund:"; // Prompt for staff scan
+        lblTotal.textContent = "Refund Total:";
+        lblPaymentMethod.textContent = "Refund Method:";
+
+        setStatus("Scan Staff Barcode to authorise refund.", false);
+        txtBarcode.focus();
+    }
+
+    function exitRefundMode() {
+        console.log("Exiting Refund Mode - Returning to Sale Mode");
+        // showPOSScreen() resets UI and state correctly
+        showPOSScreen();
+    }
+    // ---
+
+    // --- Scan Handling ---
+    function handleBarcodeTyping(event) { /* ... as before ... */
+        const currentInput = event.target;
+        if (scanTimeout !== null) { clearTimeout(scanTimeout); }
+        if (currentInput.value.trim() === "") { scanTimeout = null; return; }
+        scanTimeout = setTimeout(() => {
+             console.log(`Scan timeout. Processing...`);
+             handleScanOrInput(currentInput);
+             scanTimeout = null;
+        }, SCAN_DELAY_MS);
+     }
+
+    function handleScanOrInput(sourceElement = null) { /* ... Dispatcher as before ... */
+        let barcode = ""; let inputFieldToClear = null;
+        if (sourceElement && typeof sourceElement.value !== 'undefined') {
+            barcode = sourceElement.value.trim(); inputFieldToClear = sourceElement;
+            if (scanTimeout) { clearTimeout(scanTimeout); scanTimeout = null; }
+        } else { // Manual Button
+             if (isInRefundMode || !isLoggedIn) return; // Manual add disabled if refund/logged out
+             barcode = txtBarcode.value.trim(); inputFieldToClear = txtBarcode; console.log("Manual add triggered.");
+             if (barcode === STAFF_LOGIN_BARCODE || barcode === LOYALTY_BARCODE) {
+                 setStatus("ERROR: Cannot add special codes manually.", true);
+                 if (inputFieldToClear) inputFieldToClear.value = ""; if (inputFieldToClear) inputFieldToClear.focus(); return;
+             }
+        }
+        if (barcode === "") return;
+        console.log(`Input: ${barcode} | Refund: ${isInRefundMode} | R_Auth: ${isRefundAuthenticated} | LoggedIn: ${isLoggedIn}`);
+        if (isInRefundMode) { handleRefundScan(barcode, inputFieldToClear); }
+        else if (isLoggedIn) { handleSaleScan(barcode, inputFieldToClear); }
+        else { handleLoginScan(barcode, inputFieldToClear); }
+    }
+
+    function handleLoginScan(barcode, inputFieldToClear){ /* ... as before ... */
+        if (inputFieldToClear !== txtBarcodeLogin) { setStatus("ERROR: Please log in first.", true); }
+        else if (barcode === STAFF_LOGIN_BARCODE) { console.log("Login successful."); setStatus("Login successful.", false); showPOSScreen(); }
+        else { console.warn("Invalid login scan:", barcode); setStatus(`ERROR: Invalid Staff Barcode.`, true); }
+        if (inputFieldToClear) inputFieldToClear.value = ""; if (inputFieldToClear) inputFieldToClear.focus();
+    }
+
+    function handleSaleScan(barcode, inputFieldToClear) { /* ... as before ... */
+        console.log("Processing scan in Sale Mode");
+        if (barcode === LOYALTY_BARCODE) { applyLoyaltyDiscount(); }
+        else if (productDatabase.has(barcode)) {
+            const itemInfo = productDatabase.get(barcode); const description = itemInfo.description; const price = parseFloat(itemInfo.price);
+            currentSaleData.push({ barcode: barcode, description: description, price: price });
+            const priceString = price.toFixed(2).padStart(8, ' '); const displayString = `${priceString}  ${description}`; currentSaleItems.push(displayString);
+            currentTotal += price;
+            updateItemList(); updateTotalDisplay(); setStatus(`Added: ${description}`, false); console.log("Sale item added:", itemInfo);
+        } else { setStatus(`ERROR: Barcode '${barcode}' not found!`, true); console.warn(`Barcode not found (sale): ${barcode}`); }
+        if (inputFieldToClear) inputFieldToClear.value = ""; if (inputFieldToClear) inputFieldToClear.focus();
+    }
+
+    function handleRefundScan(barcode, inputFieldToClear) { /* ... Updated ... */
+        console.log("Processing scan in Refund Mode");
+
+        // Step 1: Check Refund Authentication
+        if (!isRefundAuthenticated) {
+            if (barcode === STAFF_LOGIN_BARCODE) {
+                console.log("Refund mode authenticated.");
+                isRefundAuthenticated = true;
+                refundAuthPrompt.classList.add('hidden'); // *** Hide Auth Prompt ***
+                lblBarcode.textContent = "Scan Item to Refund:"; // Update label
+                setStatus("Refund authorised. Scan item to refund.", false);
+            } else {
+                console.warn("Invalid staff scan for refund auth:", barcode);
+                setStatus("ERROR: Invalid Staff Barcode for refund authorisation.", true);
+                 // Keep auth prompt visible
+            }
+            if (inputFieldToClear) inputFieldToClear.value = ""; if (inputFieldToClear) inputFieldToClear.focus();
+            return;
+        }
+
+        // Step 2: Process Item Scan (Authenticated)
+        if (barcode === STAFF_LOGIN_BARCODE || barcode === LOYALTY_BARCODE) {
+             setStatus("Please scan item to refund.", false); // Ignore special codes now
+             if (inputFieldToClear) inputFieldToClear.value = ""; if (inputFieldToClear) inputFieldToClear.focus(); return;
+        }
+
+        if (productDatabase.has(barcode)) {
+            const itemInfo = productDatabase.get(barcode);
+            const description = `REFUND: ${itemInfo.description}`;
+            const refundPrice = -Math.abs(parseFloat(itemInfo.price)); // Ensure negative
+
+            currentSaleData.push({ barcode: barcode, description: description, price: refundPrice });
+            const priceString = refundPrice.toFixed(2).padStart(8, ' ');
+            const displayString = `${priceString}  ${description}`;
+            currentSaleItems.push(displayString);
+
+            recalculateTotal(); updateItemList(); updateTotalDisplay();
+            setStatus(`Added for Refund: ${itemInfo.description}`, false);
+            console.log("Refund item added:", itemInfo, "Price:", refundPrice);
+        } else {
+            setStatus(`ERROR: Product '${barcode}' not found for refund!`, true);
+            console.warn(`Product not found (refund): ${barcode}`);
+        }
+        if (inputFieldToClear) inputFieldToClear.value = ""; if (inputFieldToClear) inputFieldToClear.focus();
+    }
+    // ---
+
+    // --- Loyalty Discount Application ---
+     function applyLoyaltyDiscount() { /* ... as before ... */
+        const alreadyApplied = currentSaleData.some(item => item.barcode === DISCOUNT_IDENTIFIER);
+        if (alreadyApplied) { setStatus("Loyalty discount already applied.", true); return; }
+        console.log("Applying loyalty discount.");
+        const discountData = { barcode: DISCOUNT_IDENTIFIER, description: "Loyalty Discount", price: 0.00 };
+        const priceString = (0.00).toFixed(2).padStart(8, ' '); const displayString = `${priceString}  ${discountData.description}`;
+        currentSaleData.push(discountData); currentSaleItems.push(displayString);
+        updateItemList(); updateTotalDisplay();
+        setStatus("Loyalty code accepted. Select line & 'Change Price'.", false);
+        lstItems.selectedIndex = currentSaleItems.length - 1;
+    }
+
+    // --- Item Action Functions ---
+    function getSelectedItemIndex() { /* ... as before ... */
+        const i = lstItems.selectedIndex; if (i === -1) { alert("Please select an item."); return -1; } return i;
+     }
+    function recalculateTotal() { /* ... as before ... */
+        currentTotal = 0.0; currentSaleData.forEach(item => { currentTotal += item.price; }); console.log("Recalculated total:", currentTotal);
+     }
+    function deleteSelectedItem() { /* ... Slight modification for clarity ... */
+        const index = getSelectedItemIndex(); if (index === -1) return;
+        const itemToDelete = currentSaleData[index];
+        const itemDesc = itemToDelete.description; // Get description before potential removal
+        if (confirm(`Delete "${itemDesc}"?`)) {
+            console.log(`Deleting ${isInRefundMode ? 'refund' : 'sale'} item:`, itemToDelete);
+            currentSaleData.splice(index, 1); currentSaleItems.splice(index, 1);
+            recalculateTotal(); updateItemList(); updateTotalDisplay();
+            setStatus(`Deleted: ${itemDesc}`, false);
+        }
+     }
+
+    // --- UPDATED: changeSelectedItemPrice with Mode-Specific Validation ---
+    function changeSelectedItemPrice() {
+        const index = getSelectedItemIndex(); if (index === -1) return;
+
+        const itemToChange = currentSaleData[index];
+        const currentPriceFormatted = itemToChange.price.toFixed(2);
+        const promptMessage = isInRefundMode
+            ? `Enter new refund amount for "${itemToChange.description}" (must be 0 or negative):`
+            : `Enter new price for "${itemToChange.description}":\n(Use negative only for Loyalty Discount)`;
+
+        const newPriceStr = prompt(promptMessage, currentPriceFormatted);
+        if (newPriceStr === null) { console.log("Price change cancelled."); return; }
+
+        const newPrice = parseFloat(newPriceStr);
+
+        // *** NEW VALIDATION LOGIC ***
+        let isValidPrice = true;
+        let validationError = "";
+
+        if (isNaN(newPrice)) {
+            isValidPrice = false;
+            validationError = "Invalid number entered.";
+        } else {
+            if (isInRefundMode) {
+                // REFUND MODE: Price must be <= 0
+                if (newPrice > 0) {
+                    isValidPrice = false;
+                    validationError = "Invalid price for refund. Amount must be zero or negative.";
+                }
+            } else {
+                // SALE MODE: Different rules
+                if (itemToChange.barcode === DISCOUNT_IDENTIFIER) {
+                    // Loyalty discount must be <= 0
+                    if (newPrice > 0) {
+                        isValidPrice = false;
+                        validationError = "Loyalty discount value must be zero or negative.";
+                    }
+                } else {
+                    // Regular item price must be >= 0
+                    if (newPrice < 0) {
+                        isValidPrice = false;
+                        validationError = "Price cannot be negative for regular items in a sale.";
+                    }
+                }
+            }
+        }
+
+        if (!isValidPrice) {
+            alert(`Invalid Price: ${validationError}`);
+            console.error("Invalid price input:", newPriceStr, "| Reason:", validationError);
+            return; // Stop processing
+        }
+        // *** END NEW VALIDATION LOGIC ***
+
+
+        console.log(`Changing price for item at index ${index} from ${itemToChange.price} to ${newPrice} (Mode: ${isInRefundMode ? 'Refund' : 'Sale'})`);
+        itemToChange.price = newPrice;
+
+        const newPriceStringFormatted = newPrice.toFixed(2).padStart(8, ' ');
+        currentSaleItems[index] = `${newPriceStringFormatted}  ${itemToChange.description}`; // Description includes "REFUND:" if applicable
+
+        recalculateTotal();
+        updateItemList();
+        updateTotalDisplay();
+        setStatus(`Price updated for: ${itemToChange.description}`, false);
+    }
+    // ---
+
+    // --- UI Update Functions ---
+    function updateItemList() { /* ... as before ... */
+        const prevIdx = lstItems.selectedIndex; lstItems.innerHTML = "";
+        currentSaleItems.forEach(t => { const o = document.createElement("option"); o.textContent = t; lstItems.appendChild(o); });
+        if (prevIdx !== -1 && prevIdx < lstItems.options.length) { lstItems.selectedIndex = prevIdx; }
+    }
+    function updateTotalDisplay() { /* ... as before ... */
+       spnTotal.textContent = currencyFormatter.format(currentTotal);
+       spnTotal.classList.toggle('negative', currentTotal < 0); // More concise toggle
+     }
+    function setStatus(message, isError) { /* ... as before ... */
+        divStatus.textContent = message; divStatus.className = isError ? "error" : "status";
+     }
+
+    // --- Payment / Refund Processing Functions ---
+    function payByCash() { /* ... minor refactoring from previous version ... */
+        if (!isLoggedIn) return;
+        const tranType = isInRefundMode ? "Refund - Cash" : "Sale - Cash";
+        const title = isInRefundMode ? "Total Refund:" : "Total Due:";
+        const btnText = isInRefundMode ? "Process Cash Refund" : "Accept Cash";
+        const successMsg = isInRefundMode ? "Cash Refund Processed" : "Payment Successful (Cash)";
+
+        if (currentSaleData.length === 0) { alert("No items."); return; }
+        if (!isInRefundMode && currentTotal === 0) { alert("£0.00 total. Processing free (Cash)."); logTransaction(tranType, 0, 0); clearSale(); return; }
+        if (isInRefundMode && currentTotal >= 0) { alert("No amount to refund."); return; }
+        if (!isInRefundMode && currentTotal < 0) { alert("Sale total cannot be negative."); return; }
+
+        const amountAbs = Math.abs(currentTotal);
+        const amountFmt = currencyFormatter.format(amountAbs);
+
+        if (isInRefundMode) {
+            if (confirm(`${title} ${amountFmt}\n\n${btnText}?`)) {
+                alert(`${successMsg}\nAmount: ${amountFmt}`);
+                logTransaction(tranType, currentTotal, null); exitRefundMode();
+            } else { alert("Refund cancelled."); }
+        } else { // Sale Mode
+            const tenderedStr = prompt(`${title} ${amountFmt}\n\nEnter Cash Tendered:`, currentTotal.toFixed(2));
+            if (tenderedStr === null) return;
+            const tendered = parseFloat(tenderedStr);
+            if (isNaN(tendered)) { alert("Invalid amount."); return; }
+            if (tendered >= currentTotal) {
+                const change = tendered - currentTotal;
+                alert(`${successMsg}\nTotal: ${amountFmt}\nTendered: ${currencyFormatter.format(tendered)}\nChange: ${currencyFormatter.format(change)}`);
+                logTransaction(tranType, currentTotal, tendered); clearSale();
+            } else { alert(`Insufficient cash! Amount due: ${amountFmt}`); }
+        }
+    }
+    function payByCard() { /* ... minor refactoring from previous version ... */
+        if (!isLoggedIn) return;
+        const tranType = isInRefundMode ? "Refund - Card" : "Sale - Card";
+        const title = isInRefundMode ? "Total Refund:" : "Total Due:";
+        const btnText = isInRefundMode ? "Process Card Refund" : "Process Card Payment";
+        const successMsg = isInRefundMode ? "Card Refund Successful" : "Card Payment Successful";
+
+        if (currentSaleData.length === 0) { alert("No items."); return; }
+        if (!isInRefundMode && currentTotal === 0) { alert("£0.00 total. Processing free (Card)."); logTransaction(tranType, 0, null); clearSale(); return; }
+        if (isInRefundMode && currentTotal >= 0) { alert("No amount to refund."); return; }
+        if (!isInRefundMode && currentTotal < 0) { alert("Sale total cannot be negative."); return; }
+
+        const amountAbs = Math.abs(currentTotal);
+        const amountFmt = currencyFormatter.format(amountAbs);
+
+        if (confirm(`${title} ${amountFmt}\n\n${btnText}?`)) {
+            alert(`${successMsg}\nAmount: ${amountFmt}`);
+            logTransaction(tranType, currentTotal, null);
+            if (isInRefundMode) { exitRefundMode(); } else { clearSale(); }
+        } else { alert(`Card ${isInRefundMode ? 'refund' : 'payment'} cancelled.`); }
+    }
+    function payByVoucher() { /* ... as before (disabled in refund) ... */
+        if (isInRefundMode) { alert("Cannot refund to voucher."); return; }
+        if (!isLoggedIn) return;
+        const tranType = "Sale - Voucher";
+        if (currentSaleData.length === 0) { alert("No items."); return; }
+        if (currentTotal === 0) { alert("£0.00 total. Free transaction (Voucher N/A)."); logTransaction(tranType, 0,"N/A - Free"); clearSale(); return; }
+        if (currentTotal < 0) { alert("Sale total cannot be negative."); return; }
+
+        const totalFmt = currencyFormatter.format(currentTotal);
+        const code = prompt(`Total Due: ${totalFmt}\n\nEnter Voucher Code:`);
+        if (code === null) return;
+        if (code.trim() !== "") {
+            alert(`Voucher '${code}' accepted for ${totalFmt}`);
+            logTransaction(tranType, currentTotal, code); clearSale();
+        } else { alert("No voucher code entered."); }
+    }
+
+    // --- Utility Functions ---
+    function clearSale() { /* ... as before ... */
+        console.log("Clearing current items...");
+        currentSaleItems = []; currentSaleData = []; currentTotal = 0.0; lstItems.innerHTML = "";
+        updateTotalDisplay();
+        if(isLoggedIn) {
+            txtBarcode.value = ""; txtBarcode.focus(); // Keep focus on main input
+             if (!isInRefundMode) { setStatus("Ready for next scan.", false); }
+             else if (!isRefundAuthenticated) { setStatus("Scan Staff Barcode to authorise refund.", false);}
+             else { setStatus("Scan item to refund.", false); } // Refund mode, authenticated
+        }
+        if (scanTimeout) { clearTimeout(scanTimeout); scanTimeout = null; }
+    }
+
+    // --- Logging Function ---
+    function logTransaction(transactionType, amount, paymentDetail) { /* ... as before ... */
+        console.log(`--- ${transactionType} Log ---`);
+        const now = new Date(); console.log(`Timestamp: ${now.toLocaleString('en-GB', { timeZone: 'Europe/London' })}`); // TODO: Confirm Timezone setting works reliably
+        console.log("Items:"); const itemsToLog = [...currentSaleData];
+        if (itemsToLog.length > 0) { itemsToLog.forEach(item => { console.log(`  - [${item.barcode}] ${item.description} (${currencyFormatter.format(item.price)})`); }); }
+        else { console.log("  (No item data)"); }
+        console.log(`Total Amount: ${currencyFormatter.format(amount)}`);
+        if (transactionType.includes("Cash")) {
+            const method = transactionType.includes("Refund") ? "Refund Method: Cash" : "Payment Method: Cash"; console.log(method);
+             if (transactionType.includes("Sale")) { const tendered = typeof paymentDetail === 'number' ? paymentDetail : parseFloat(paymentDetail || '0'); console.log(`Cash Tendered: ${currencyFormatter.format(tendered)}`); console.log(`Change Given: ${currencyFormatter.format(tendered - amount)}`); }
+        } else if (transactionType.includes("Card")) { console.log(`Method: Card`); }
+        else if (transactionType.includes("Voucher")) { console.log(`Payment Method: Voucher`); console.log(`Voucher Code: ${paymentDetail}`); }
+        console.log("-----------------------");
+     }
+
+    // --- Start the application ---
+    window.addEventListener('DOMContentLoaded', initializePOS);
+
+</script>
+
+</body>
+</html>
