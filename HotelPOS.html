@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel POS System</title>
+    <style>
+        /* --- Global Styles --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background-color: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+            padding-bottom: 70px; /* Space for the fixed bottom button */
+        }
+
+        .pos-container {
+            display: flex;
+            flex-direction: column;
+            min-height: calc(100vh - 70px); /* Adjust for footer/button */
+        }
+
+        header {
+            background-color: #007bff;
+            color: #fff;
+            padding: 1rem 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.8em;
+        }
+
+        .main-content {
+            display: flex;
+            flex-grow: 1;
+            padding: 1.5rem;
+            gap: 1.5rem;
+        }
+
+        .room-grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* Slightly wider for new text */
+            gap: 1rem;
+            flex-grow: 3;
+            background-color: #fff;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            max-height: calc(100vh - 200px); /* Adjust based on header/footer/button */
+        }
+
+        .room-square {
+            background-color: #e9ecef; /* Light gray - available */
+            color: #495057;
+            padding: 10px; /* Adjusted padding */
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Center content vertically */
+            align-items: center;
+            min-height: 100px; /* Adjusted min height */
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .room-square:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .room-square.in-use { /* Changed from .booked to .in-use and color to green */
+            background-color: #28a745; /* Green - in-use */
+            color: white;
+            cursor: pointer;
+        }
+
+        .room-square.in-use:hover {
+             background-color: #1e7e34; /* Darker green on hover */
+        }
+
+        .room-square .room-number {
+            font-weight: bold;
+            font-size: 1.5em; /* Slightly larger room number */
+            margin-bottom: 5px;
+        }
+
+        .room-square .room-status-text { /* For "Available" text */
+            font-size: 0.75em;
+            color: #6c757d; /* Subdued color for "Available" */
+            margin-top: 3px;
+        }
+        .room-square.in-use .room-status-text { /* Guest name display */
+            font-size: 0.8em;
+            color: white; /* Guest name color for green background */
+            margin-top: 5px;
+            word-break: break-word;
+            line-height: 1.2;
+        }
+
+
+        .sidebar {
+            flex-grow: 1;
+            min-width: 250px;
+            max-width: 300px;
+            padding: 1rem;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            /* Sidebar no longer holds the online booking button */
+        }
+
+        .sidebar h2 {
+            margin-top: 0;
+            color: #007bff;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        footer {
+            background-color: #343a40;
+            color: #fff;
+            text-align: center;
+            padding: 0.8rem;
+            font-size: 0.9em;
+            position: fixed; /* Fixed footer */
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            z-index: 999; /* Below modals but above page content */
+        }
+
+        /* --- Buttons --- */
+        .action-button { /* General style for action buttons */
+            padding: 12px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            text-align: center;
+            transition: background-color 0.2s ease;
+            margin-bottom: 10px;
+        }
+        .action-button:hover {
+            background-color: #0056b3;
+        }
+
+        #onlineBookingBtnFixed { /* Specific style for the fixed button */
+            position: fixed;
+            bottom: 20px; /* Adjust as needed from footer */
+            right: 20px;
+            z-index: 1001; /* Above footer but below modals if they overlap */
+            padding: 10px 20px;
+            background-color: #fd7e14; /* Orange color for visibility */
+            color: white;
+            border: none;
+            border-radius: 25px; /* Pill shape */
+            cursor: pointer;
+            font-size: 0.9em;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        #onlineBookingBtnFixed:hover {
+            background-color: #e66800; /* Darker orange */
+            transform: translateY(-2px);
+        }
+
+
+        .action-button-small {
+            padding: 8px 12px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.2s ease;
+            margin-top: 5px;
+            margin-right: 5px;
+        }
+        .action-button-small:hover {
+            background-color: #1e7e34;
+        }
+
+        .warning-button {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        .warning-button:hover {
+            background-color: #e0a800;
+        }
+        #checkOutBtn {
+            background-color: #dc3545;
+            color: white;
+        }
+        #checkOutBtn:hover {
+            background-color: #c82333;
+        }
+
+
+        /* --- Modal Styles --- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1050; /* Ensure modals are on top */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+            padding-top: 50px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 25px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 550px;
+            border-radius: 8px;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            transition: color 0.2s;
+        }
+        .close-btn:hover,
+        .close-btn:focus {
+            color: #333;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+        .modal-content h3 {
+            color: #495057;
+            margin-bottom: 15px;
+        }
+
+        /* --- Form Styles --- */
+        form div {
+            margin-bottom: 15px;
+        }
+        form label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #495057;
+        }
+        form input[type="text"],
+        form input[type="number"],
+        form input[type="email"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        form input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+        }
+
+        .payment-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        .payment-options button { margin-right: 10px; }
+        .status-message {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        #paymentSummary p { margin: 5px 0; }
+
+        /* --- Mobile Phone Emulator Styles --- */
+        .mobile-emulator-body {
+            width: 300px;
+            height: 600px;
+            background-color: #1c1c1c;
+            border-radius: 30px;
+            padding: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin: 3% auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .mobile-emulator-top {
+            text-align: right;
+            padding-bottom: 5px;
+        }
+        .mobile-emulator-top .close-btn {
+            color: #888;
+            font-size: 18px;
+        }
+        .phone-screen {
+            background-color: #fff;
+            flex-grow: 1;
+            border-radius: 15px;
+            padding: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .phone-header {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            font-size: 1.1em;
+            text-align: center;
+            font-weight: bold;
+        }
+        .phone-content {
+            padding: 20px;
+            overflow-y: auto;
+            flex-grow: 1;
+            text-align: center;
+        }
+        .phone-content h2 { color: #333; margin-bottom: 15px;}
+        .phone-button {
+            display: block;
+            width: 80%;
+            margin: 15px auto;
+            padding: 12px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .phone-button:hover { background-color: #1e7e34; }
+        .mobile-room-selection h3 { font-size: 1em; margin-bottom: 10px; color: #555; }
+        .mobile-room-selection button {
+            display: block;
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 8px;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .mobile-room-selection button.in-use-mobile { /* Reflects in-use status for mobile view */
+            background-color: #d4edda; /* Light green */
+            color: #155724; /* Dark green text */
+            border-color: #c3e6cb;
+            cursor: not-allowed;
+            text-decoration: line-through;
+        }
+        .phone-status { font-size: 0.9em; margin-top: 15px; color: #007bff; }
+        .phone-footer { height: 30px; background-color: #f8f9fa; border-top: 1px solid #e9ecef;}
+
+
+        /* --- Card Terminal Emulator Styles (Inspired by Ingenico) --- */
+        .terminal-emulator-body {
+            width: 280px;
+            background: linear-gradient(to bottom, #5A5A5A, #3A3A3A);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            margin: 3% auto;
+            color: white;
+        }
+        .terminal-screen-bezel {
+            background-color: #2c3e50;
+            border: 3px solid #7f8c8d;
+            border-radius: 5px;
+            padding: 5px;
+            margin-bottom: 15px;
+        }
+        .terminal-screen-actual {
+            background-color: #76D7C4;
+            color: #1A5276;
+            padding: 20px 10px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Courier New', Courier, monospace;
+            font-size: 1.5em;
+            font-weight: bold;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .terminal-keypad {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        .terminal-keypad button {
+            padding: 12px 5px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border: 1px solid #7f8c8d;
+            border-radius: 5px;
+            background-color: #bdc3c7;
+            color: #2c3e50;
+            cursor: pointer;
+            box-shadow: 0 2px 2px rgba(0,0,0,0.2);
+            transition: background-color 0.1s ease;
+        }
+        .terminal-keypad button:active {
+            background-color: #95a5a6;
+            transform: translateY(1px);
+        }
+        .terminal-keypad .terminal-red { background-color: #e74c3c; color: white; }
+        .terminal-keypad .terminal-yellow { background-color: #f1c40f; color: #333; }
+        .terminal-keypad .terminal-green { background-color: #2ecc71; color: white; }
+
+        #terminalTapArea {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            text-align: center;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            border: 2px dashed #7f8c8d;
+            display: none;
+        }
+        #terminalTapArea p { margin: 0 0 5px 0; }
+        #terminalTapArea small { font-weight: normal; font-size: 0.8em; opacity: 0.8;}
+        #terminalTapArea:hover { background-color: rgba(255, 255, 255, 0.2); }
+
+        /* Utility */
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="pos-container">
+        <header>
+            <h1>Hotel POS</h1> </header>
+
+        <main class="main-content">
+            <div class="room-grid-container" id="roomGridContainer">
+                </div>
+
+            <aside class="sidebar">
+                <h2>Staff Tools</h2> <p>Quick actions or reports can go here.</p>
+                </aside>
+        </main>
+        </div>
+
+    <button id="onlineBookingBtnFixed" class="action-button">Online Booking</button>
+
+    <footer>
+        <p>Developed by DevTexis</p> </footer>
+
+    <div id="mobileEmulatorModal" class="modal">
+        <div class="modal-content mobile-emulator-body">
+            <div class="mobile-emulator-top">
+                 <span class="close-btn" onclick="closeModal('mobileEmulatorModal')">&times;</span>
+            </div>
+            <div class="phone-screen" id="phoneScreen">
+                <div class="phone-header">MyHotel App</div>
+                <div class="phone-content">
+                    <h2>Book Your Stay!</h2>
+                    <button id="mobileViewRoomsBtn" class="phone-button">View Available Rooms</button>
+                    <div class="mobile-room-selection" id="mobileRoomSelection">
+                        </div>
+                    <p id="mobileBookingStatus" class="phone-status"></p>
+                </div>
+                <div class="phone-footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="staffBookingModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('staffBookingModal')">&times;</span>
+            <h2>Book Room: <span id="staffBookingRoomNumber"></span></h2>
+            <form id="staffBookingForm">
+                <div>
+                    <label for="guestName">Guest Name:</label>
+                    <input type="text" id="guestName" name="guestName" required>
+                </div>
+                <div>
+                    <label for="nights">Number of Nights:</label>
+                    <input type="number" id="nights" name="nights" min="1" value="1" required>
+                </div>
+                <div>
+                    <label for="email">Email (Optional):</label>
+                    <input type="email" id="email" name="email">
+                </div>
+                <button type="submit" class="action-button">Proceed to Payment</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('paymentModal')">&times;</span>
+            <h2>Payment Details</h2>
+            <div id="paymentSummary">
+                <p>Room: <span id="paymentRoomNumberVal"></span></p>
+                <p>Guest: <span id="paymentGuestNameVal"></span></p>
+                <p>Nights: <span id="paymentNightsVal"></span></p>
+                <h3>Total Due: £<span id="paymentEstimatedPriceVal">0.00</span></h3>
+            </div>
+
+            <div class="payment-options">
+                <button id="voucherBtn" class="action-button-small">Apply Voucher</button>
+                <button id="cashPaymentBtn" class="action-button-small">Pay Cash</button>
+                <button id="cardPaymentBtn" class="action-button-small">Pay Card</button>
+            </div>
+
+            <div id="voucherInputSection" class="payment-section" style="display: none;">
+                <label for="voucherAmount">Voucher Amount (£):</label>
+                <input type="number" id="voucherAmount" name="voucherAmount" step="0.01" min="0">
+                <button id="applyVoucherBtn" class="action-button-small">Apply</button>
+            </div>
+
+            <div id="cashPaymentSection" class="payment-section" style="display: none;">
+                <label for="cashPaid">Cash Paid by Customer (£):</label>
+                <input type="number" id="cashPaid" name="cashPaid" step="0.01" min="0">
+                <button id="processCashPaymentBtn" class="action-button-small">Confirm Cash</button>
+                <p>Change Due: £<span id="changeDue">0.00</span></p>
+            </div>
+             <div id="cardPaymentOptions" class="payment-section" style="display: none;">
+                <p>Select Card Payment Method:</p>
+                <button id="skipCardPaymentBtn" class="action-button-small">Skip (External/Manual)</button>
+                <button id="useTerminalBtn" class="action-button-small">Use Card Terminal</button>
+            </div>
+
+            <p id="paymentStatus" class="status-message"></p>
+        </div>
+    </div>
+
+    <div id="terminalEmulatorModal" class="modal">
+        <div class="modal-content terminal-emulator-body">
+             <div style="text-align: right; margin-bottom: 5px;"><span class="close-btn" style="color:#ccc; font-size:18px;" onclick="closeModal('terminalEmulatorModal')">&times;</span></div>
+            <div class="terminal-screen-bezel">
+                <div id="terminalDisplayText" class="terminal-screen-actual">Idle</div>
+            </div>
+            <div class="terminal-keypad">
+                <button onclick="terminalKeyPress('1')">1</button>
+                <button onclick="terminalKeyPress('2')">2</button>
+                <button onclick="terminalKeyPress('3')">3</button>
+                <button class="terminal-red" onclick="terminalAction('cancel')">X</button>
+
+                <button onclick="terminalKeyPress('4')">4</button>
+                <button onclick="terminalKeyPress('5')">5</button>
+                <button onclick="terminalKeyPress('6')">6</button>
+                <button class="terminal-yellow" onclick="terminalAction('clear')">&lt;</button>
+
+                <button onclick="terminalKeyPress('7')">7</button>
+                <button onclick="terminalKeyPress('8')">8</button>
+                <button onclick="terminalKeyPress('9')">9</button>
+                <button class="terminal-green" onclick="terminalAction('confirm')">&#10004;</button>
+
+                <button style="background-color: #95a5a6;" onclick="terminalKeyPress('.')">.</button>
+                <button onclick="terminalKeyPress('0')">0</button>
+                <button style="visibility: hidden;"></button>
+                <button style="visibility: hidden;"></button>
+            </div>
+            <div id="terminalTapArea" onclick="emulateCardTap()">
+                <p>TAP CARD</p>
+                <small>(Click to Simulate)</small>
+            </div>
+        </div>
+    </div>
+
+    <div id="roomDetailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('roomDetailsModal')">&times;</span>
+            <h2>Room <span id="detailsRoomNumberVal"></span> - In Use</h2> <p><strong>Guest:</strong> <span id="detailsGuestNameVal"></span></p>
+            <p><strong>Nights:</strong> <span id="detailsNightsVal"></span></p>
+            <p><strong>Email:</strong> <span id="detailsEmailVal"></span></p>
+            <p><strong>Total Paid:</strong> £<span id="detailsTotalPaidVal"></span></p>
+            <p><strong>Payment Method:</strong> <span id="detailsPaymentMethodVal"></span></p>
+            <button id="checkOutBtn" class="action-button warning-button">Check Out Customer</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Elements ---
+            const roomGridContainer = document.getElementById('roomGridContainer');
+            // onlineBookingBtn is now onlineBookingBtnFixed
+            const onlineBookingBtnFixed = document.getElementById('onlineBookingBtnFixed');
+            const mobileEmulatorModal = document.getElementById('mobileEmulatorModal');
+            const staffBookingModal = document.getElementById('staffBookingModal');
+            const paymentModal = document.getElementById('paymentModal');
+            const terminalEmulatorModal = document.getElementById('terminalEmulatorModal');
+            const roomDetailsModal = document.getElementById('roomDetailsModal');
+            const modals = document.querySelectorAll('.modal');
+
+            const mobileViewRoomsBtn = document.getElementById('mobileViewRoomsBtn'); // Changed ID
+            const mobileRoomSelectionContainer = document.getElementById('mobileRoomSelection');
+            const mobileBookingStatus = document.getElementById('mobileBookingStatus');
+
+            const staffBookingForm = document.getElementById('staffBookingForm');
+            const staffBookingRoomNumberSpan = document.getElementById('staffBookingRoomNumber');
+            const guestNameInput = document.getElementById('guestName');
+            const nightsInput = document.getElementById('nights');
+            const emailInput = document.getElementById('email');
+
+            const paymentRoomNumberSpan = document.getElementById('paymentRoomNumberVal');
+            const paymentGuestNameSpan = document.getElementById('paymentGuestNameVal');
+            const paymentNightsSpan = document.getElementById('paymentNightsVal');
+            const paymentEstimatedPriceSpan = document.getElementById('paymentEstimatedPriceVal');
+            const voucherBtn = document.getElementById('voucherBtn');
+            const cashPaymentBtn = document.getElementById('cashPaymentBtn');
+            const cardPaymentBtn = document.getElementById('cardPaymentBtn');
+            const voucherInputSection = document.getElementById('voucherInputSection');
+            const voucherAmountInput = document.getElementById('voucherAmount');
+            const applyVoucherBtn = document.getElementById('applyVoucherBtn');
+            const cashPaymentSection = document.getElementById('cashPaymentSection');
+            const cashPaidInput = document.getElementById('cashPaid');
+            const processCashPaymentBtn = document.getElementById('processCashPaymentBtn');
+            const changeDueSpan = document.getElementById('changeDue');
+            const cardPaymentOptions = document.getElementById('cardPaymentOptions');
+            const skipCardPaymentBtn = document.getElementById('skipCardPaymentBtn');
+            const useTerminalBtn = document.getElementById('useTerminalBtn');
+            const paymentStatusP = document.getElementById('paymentStatus');
+
+            const terminalDisplayText = document.getElementById('terminalDisplayText');
+            const terminalTapArea = document.getElementById('terminalTapArea');
+
+            const detailsRoomNumberSpan = document.getElementById('detailsRoomNumberVal');
+            const detailsGuestNameSpan = document.getElementById('detailsGuestNameVal');
+            const detailsNightsSpan = document.getElementById('detailsNightsVal');
+            const detailsEmailSpan = document.getElementById('detailsEmailVal');
+            const detailsTotalPaidSpan = document.getElementById('detailsTotalPaidVal');
+            const detailsPaymentMethodSpan = document.getElementById('detailsPaymentMethodVal');
+            const checkOutBtn = document.getElementById('checkOutBtn');
+
+            // Footer year span is removed
+
+            // --- State Management ---
+            let rooms = [];
+            const TOTAL_ROOMS = 24;
+            const PRICE_PER_NIGHT = 75.50;
+
+            let currentBooking = {
+                roomId: null,
+                guestName: '',
+                nights: 0,
+                email: '',
+                estimatedPrice: 0,
+                amountDue: 0,
+                paymentMethod: ''
+            };
+            let currentTerminalInput = "";
+            let terminalState = "idle";
+            let roomToCheckout = null;
+
+            // --- Initialization ---
+            function initializeRooms() {
+                rooms = [];
+                for (let i = 1; i <= TOTAL_ROOMS; i++) {
+                    rooms.push({
+                        id: String(i).padStart(3, '0'),
+                        status: 'available', // 'available', 'in-use'
+                        guestName: '',
+                        nights: 0,
+                        email: '',
+                        pricePerNight: PRICE_PER_NIGHT,
+                        totalPaid: 0,
+                        paymentMethod: ''
+                    });
+                }
+                renderRooms();
+                renderMobileRoomSelection();
+            }
+
+            // --- Rendering Functions ---
+            function renderRooms() {
+                roomGridContainer.innerHTML = '';
+                rooms.forEach(room => {
+                    const roomSquare = document.createElement('div');
+                    roomSquare.classList.add('room-square');
+                    roomSquare.dataset.roomId = room.id;
+
+                    const roomNumberDiv = document.createElement('div');
+                    roomNumberDiv.classList.add('room-number');
+                    roomNumberDiv.textContent = room.id;
+                    roomSquare.appendChild(roomNumberDiv);
+
+                    const statusDisplay = document.createElement('div'); // For "Available" or Guest Name
+                    statusDisplay.classList.add('room-status-text');
+
+                    if (room.status === 'in-use') { // Changed from 'booked'
+                        roomSquare.classList.add('in-use'); // Apply green style
+                        statusDisplay.textContent = room.guestName.split(' ')[0];
+                        roomSquare.onclick = () => openRoomDetailsModal(room.id);
+                    } else { // 'available'
+                        roomSquare.classList.remove('in-use');
+                        statusDisplay.textContent = 'Available'; // Add "Available" text
+                        roomSquare.onclick = () => openStaffBookingModal(room.id);
+                    }
+                    roomSquare.appendChild(statusDisplay);
+                    roomGridContainer.appendChild(roomSquare);
+                });
+            }
+
+            function renderMobileRoomSelection() {
+                mobileRoomSelectionContainer.innerHTML = '<h3>Select a Room:</h3>';
+                rooms.forEach(room => {
+                    const roomButton = document.createElement('button');
+                    roomButton.textContent = `Room ${room.id} - £${room.pricePerNight.toFixed(2)}/night`;
+                    roomButton.dataset.roomId = room.id;
+                    if (room.status === 'in-use') { // Changed from 'booked'
+                        roomButton.classList.add('in-use-mobile'); // Reflects in-use status for mobile view
+                        roomButton.disabled = true;
+                    } else {
+                        roomButton.onclick = () => selectRoomForMobileBooking(room.id);
+                    }
+                    mobileRoomSelectionContainer.appendChild(roomButton);
+                });
+                mobileRoomSelectionContainer.style.display = 'none';
+            }
+
+            // --- Modal Handling ---
+            window.openModal = function(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) modal.style.display = 'block';
+            }
+
+            window.closeModal = function(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) modal.style.display = 'none';
+                if (modalId === 'paymentModal') resetPaymentModalUI();
+                if (modalId === 'terminalEmulatorModal') resetTerminal();
+                if (modalId === 'staffBookingModal') staffBookingForm.reset();
+                if (modalId === 'mobileEmulatorModal') {
+                     mobileBookingStatus.textContent = '';
+                     mobileRoomSelectionContainer.style.display = 'none';
+                }
+            }
+
+            modals.forEach(modal => {
+                modal.addEventListener('click', (event) => {
+                    if (event.target === modal) {
+                        closeModal(modal.id);
+                    }
+                });
+            });
+
+            // --- Mobile Booking Flow ---
+            onlineBookingBtnFixed.addEventListener('click', () => { // Changed event listener to new button
+                renderMobileRoomSelection();
+                mobileBookingStatus.textContent = '';
+                openModal('mobileEmulatorModal');
+            });
+
+            mobileViewRoomsBtn.addEventListener('click', () => { // Changed ID
+                mobileRoomSelectionContainer.style.display = 'block';
+                mobileBookingStatus.textContent = "Please choose a room from the list.";
+            });
+
+            function selectRoomForMobileBooking(roomId) {
+                const room = rooms.find(r => r.id === roomId);
+                if (room && room.status === 'available') {
+                    room.status = 'in-use'; // Changed from 'booked'
+                    room.guestName = `Online Guest ${roomId}`;
+                    room.nights = 1;
+                    room.email = 'Not provided (Online)';
+                    room.totalPaid = room.pricePerNight * room.nights;
+                    room.paymentMethod = 'Online Pre-Paid';
+
+                    mobileBookingStatus.textContent = `Room ${roomId} booked for 1 night! Total: £${room.totalPaid.toFixed(2)}`;
+                    renderRooms();
+                    renderMobileRoomSelection();
+                    setTimeout(() => {
+                         if (mobileEmulatorModal.style.display === 'block') closeModal('mobileEmulatorModal');
+                    }, 3000);
+                } else {
+                    mobileBookingStatus.textContent = `Room ${roomId} is unavailable.`;
+                }
+            }
+
+            // --- Staff Booking Flow ---
+            function openStaffBookingModal(roomId) {
+                const room = rooms.find(r => r.id === roomId);
+                if (room && room.status === 'available') {
+                    currentBooking.roomId = roomId;
+                    staffBookingRoomNumberSpan.textContent = roomId;
+                    staffBookingForm.reset();
+                    openModal('staffBookingModal');
+                } else {
+                    alert('This room is not available for booking.');
+                }
+            }
+
+            staffBookingForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                currentBooking.guestName = guestNameInput.value.trim();
+                currentBooking.nights = parseInt(nightsInput.value);
+                currentBooking.email = emailInput.value.trim() || 'Not provided';
+
+                if (!currentBooking.guestName) {
+                    alert("Guest name is required.");
+                    return;
+                }
+                if (isNaN(currentBooking.nights) || currentBooking.nights <= 0) {
+                    alert("Number of nights must be a positive number.");
+                    return;
+                }
+
+                const room = rooms.find(r => r.id === currentBooking.roomId);
+                if (room) {
+                    currentBooking.estimatedPrice = room.pricePerNight * currentBooking.nights;
+                    currentBooking.amountDue = currentBooking.estimatedPrice;
+                } else {
+                    alert("Error: Room data not found.");
+                    return;
+                }
+                closeModal('staffBookingModal');
+                openPaymentModal();
+            });
+
+            // --- Payment Flow ---
+            function resetPaymentModalUI() {
+                voucherInputSection.style.display = 'none';
+                cashPaymentSection.style.display = 'none';
+                cardPaymentOptions.style.display = 'none';
+                voucherAmountInput.value = '';
+                cashPaidInput.value = '';
+                changeDueSpan.textContent = '0.00';
+                paymentStatusP.textContent = '';
+            }
+
+            function openPaymentModal() {
+                resetPaymentModalUI();
+                paymentRoomNumberSpan.textContent = currentBooking.roomId;
+                paymentGuestNameSpan.textContent = currentBooking.guestName;
+                paymentNightsSpan.textContent = currentBooking.nights;
+                paymentEstimatedPriceSpan.textContent = currentBooking.amountDue.toFixed(2);
+                openModal('paymentModal');
+            }
+
+            voucherBtn.addEventListener('click', () => {
+                voucherInputSection.style.display = voucherInputSection.style.display === 'none' ? 'block' : 'none';
+                cashPaymentSection.style.display = 'none';
+                cardPaymentOptions.style.display = 'none';
+            });
+
+            applyVoucherBtn.addEventListener('click', () => {
+                const voucherVal = parseFloat(voucherAmountInput.value);
+                if (!isNaN(voucherVal) && voucherVal > 0) {
+                    if (voucherVal > currentBooking.amountDue) {
+                        alert(`Voucher amount (£${voucherVal.toFixed(2)}) exceeds amount due (£${currentBooking.amountDue.toFixed(2)}). Applying max possible.`);
+                        currentBooking.amountDue = 0;
+                    } else {
+                        currentBooking.amountDue -= voucherVal;
+                    }
+                    paymentEstimatedPriceSpan.textContent = currentBooking.amountDue.toFixed(2);
+                    paymentStatusP.textContent = `Voucher £${voucherVal.toFixed(2)} applied. New total: £${currentBooking.amountDue.toFixed(2)}`;
+                    voucherInputSection.style.display = 'none';
+                    voucherAmountInput.value = '';
+
+                    if (currentBooking.amountDue === 0) {
+                        paymentStatusP.textContent += ". Booking fully paid by voucher!";
+                        finalizeBooking(currentBooking.estimatedPrice - currentBooking.amountDue, "Voucher");
+                        setTimeout(() => closeModal('paymentModal'), 2000);
+                    }
+                } else {
+                    alert('Please enter a valid positive voucher amount.');
+                }
+            });
+
+            cashPaymentBtn.addEventListener('click', () => {
+                cashPaymentSection.style.display = cashPaymentSection.style.display === 'none' ? 'block' : 'none';
+                voucherInputSection.style.display = 'none';
+                cardPaymentOptions.style.display = 'none';
+                paymentStatusP.textContent = `Amount to pay: £${currentBooking.amountDue.toFixed(2)}`;
+                cashPaidInput.focus();
+            });
+
+            processCashPaymentBtn.addEventListener('click', () => {
+                const cashVal = parseFloat(cashPaidInput.value);
+                if (isNaN(cashVal) || cashVal < 0) {
+                    alert('Please enter a valid cash amount paid.');
+                    return;
+                }
+                if (cashVal < currentBooking.amountDue) {
+                    alert(`Cash paid (£${cashVal.toFixed(2)}) is less than amount due (£${currentBooking.amountDue.toFixed(2)}). Please collect the full amount.`);
+                    return;
+                }
+                const change = cashVal - currentBooking.amountDue;
+                changeDueSpan.textContent = change.toFixed(2);
+                paymentStatusP.textContent = `Payment successful (Cash). Change due: £${change.toFixed(2)}`;
+                finalizeBooking(currentBooking.amountDue, 'Cash');
+                setTimeout(() => closeModal('paymentModal'), 3000);
+            });
+
+            cardPaymentBtn.addEventListener('click', () => {
+                cardPaymentOptions.style.display = cardPaymentOptions.style.display === 'none' ? 'block' : 'none';
+                voucherInputSection.style.display = 'none';
+                cashPaymentSection.style.display = 'none';
+                paymentStatusP.textContent = `Amount to pay by card: £${currentBooking.amountDue.toFixed(2)}`;
+            });
+
+            skipCardPaymentBtn.addEventListener('click', () => {
+                paymentStatusP.textContent = 'Payment marked as successful (Card - Skipped).';
+                finalizeBooking(currentBooking.amountDue, 'Card (Skipped)');
+                setTimeout(() => closeModal('paymentModal'), 2000);
+            });
+
+            useTerminalBtn.addEventListener('click', () => {
+                if (currentBooking.amountDue <= 0) {
+                     alert("No amount due for card payment. Booking might be fully covered by voucher.");
+                     return;
+                }
+                openTerminalEmulator();
+            });
+
+            function finalizeBooking(amountPaidThisTransaction, paymentMethod) {
+                const room = rooms.find(r => r.id === currentBooking.roomId);
+                if (room) {
+                    room.status = 'in-use'; // Changed from 'booked'
+                    room.guestName = currentBooking.guestName;
+                    room.nights = currentBooking.nights;
+                    room.email = currentBooking.email;
+                    room.totalPaid = currentBooking.estimatedPrice;
+                    room.paymentMethod = paymentMethod;
+
+                    renderRooms();
+                    renderMobileRoomSelection();
+                    currentBooking = {};
+                }
+            }
+
+            // --- Card Terminal Emulator ---
+            function resetTerminal() {
+                currentTerminalInput = "";
+                terminalState = "idle";
+                terminalDisplayText.textContent = "Idle";
+                terminalTapArea.style.display = 'none';
+            }
+
+            function openTerminalEmulator() {
+                resetTerminal();
+                terminalState = "awaiting_price_confirmation_or_entry";
+                terminalDisplayText.textContent = `Pay £${currentBooking.amountDue.toFixed(2)}?`;
+                openModal('terminalEmulatorModal');
+            }
+
+            window.terminalKeyPress = function(key) {
+                if (terminalState === "awaiting_price_entry") { // This state isn't actively used with current confirm flow
+                    if (key === '.' && currentTerminalInput.includes('.')) return;
+                    if (currentTerminalInput.length < 8) {
+                        currentTerminalInput += key;
+                        terminalDisplayText.textContent = "£" + currentTerminalInput;
+                    }
+                }
+            }
+
+            window.terminalAction = function(action) {
+                switch (action) {
+                    case 'cancel':
+                        if (terminalState !== "idle" && terminalState !== "approved") {
+                            terminalState = "idle";
+                            terminalDisplayText.textContent = "Cancelled. Idle";
+                            setTimeout(() => {
+                                if (terminalEmulatorModal.style.display === 'block') closeModal('terminalEmulatorModal');
+                            }, 1500);
+                        }
+                        break;
+                    case 'clear': // Backspace (not currently used for price entry in this flow)
+                        if (terminalState === "awaiting_price_entry" && currentTerminalInput.length > 0) {
+                            currentTerminalInput = currentTerminalInput.slice(0, -1);
+                            terminalDisplayText.textContent = currentTerminalInput ? "£" + currentTerminalInput : "Enter Price:";
+                        }
+                        break;
+                    case 'confirm':
+                        if (terminalState === "awaiting_price_confirmation_or_entry") {
+                            currentTerminalInput = currentBooking.amountDue.toFixed(2);
+                            terminalState = "price_confirmed_awaiting_tap"; // New state
+                            terminalDisplayText.textContent = `Tap for £${currentTerminalInput}`;
+                            terminalTapArea.style.display = 'block';
+                        }
+                        break;
+                }
+            }
+
+            window.emulateCardTap = function() {
+                if (terminalState === "price_confirmed_awaiting_tap") { // Check against new state
+                    terminalState = "approved";
+                    terminalDisplayText.textContent = "Approved!";
+                    terminalTapArea.style.display = 'none';
+
+                    paymentStatusP.textContent = `Payment successful (Card Terminal - £${parseFloat(currentTerminalInput).toFixed(2)}).`;
+                    finalizeBooking(parseFloat(currentTerminalInput), 'Card (Terminal)');
+
+                    setTimeout(() => {
+                        closeModal('terminalEmulatorModal');
+                        closeModal('paymentModal');
+                        resetTerminal();
+                    }, 2000);
+                }
+            }
+
+            // --- Room Details and Check-out ---
+            function openRoomDetailsModal(roomId) {
+                const room = rooms.find(r => r.id === roomId);
+                if (room && room.status === 'in-use') { // Changed from 'booked'
+                    detailsRoomNumberSpan.textContent = room.id;
+                    detailsGuestNameSpan.textContent = room.guestName;
+                    detailsNightsSpan.textContent = room.nights;
+                    detailsEmailSpan.textContent = room.email;
+                    detailsTotalPaidSpan.textContent = room.totalPaid.toFixed(2);
+                    detailsPaymentMethodSpan.textContent = room.paymentMethod;
+                    roomToCheckout = roomId;
+                    openModal('roomDetailsModal');
+                }
+            }
+
+            checkOutBtn.addEventListener('click', () => {
+                if (roomToCheckout) {
+                    const room = rooms.find(r => r.id === roomToCheckout);
+                    if (room) {
+                        room.status = 'available';
+                        room.guestName = '';
+                        room.nights = 0;
+                        room.email = '';
+                        room.totalPaid = 0;
+                        room.paymentMethod = '';
+
+                        renderRooms();
+                        renderMobileRoomSelection();
+                        closeModal('roomDetailsModal');
+                        alert(`Room ${room.id} checked out successfully.`);
+                        roomToCheckout = null;
+                    }
+                }
+            });
+
+            // --- Initial Load ---
+            initializeRooms();
+        });
+    </script>
+</body>
+</html>
