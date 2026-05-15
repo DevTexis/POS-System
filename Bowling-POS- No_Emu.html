@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bowling POS System - Themes & Scoreboard</title>
+    <style>
+        /* --- Base & Aero Theme (Default) --- */
+        :root {
+            --aero-bg-start: rgba(210, 230, 255, 0.7);
+            --aero-bg-end: rgba(180, 210, 245, 0.6);
+            --aero-border: rgba(100, 140, 200, 0.8);
+            --aero-glow: rgba(255, 255, 255, 0.3);
+            --aero-text: #1A2B4A;
+            --aero-highlight-text: #003366;
+            --aero-button-bg-start: rgba(230, 240, 255, 0.8);
+            --aero-button-bg-end: rgba(200, 220, 250, 0.7);
+            --aero-button-border: rgba(120, 160, 220, 0.9);
+            --aero-button-hover-bg-start: rgba(240, 250, 255, 0.9);
+            --aero-button-hover-bg-end: rgba(210, 230, 255, 0.8);
+            --modal-bg: rgba(240, 245, 255, 0.95);
+            --modal-header-bg: linear-gradient(to bottom, rgba(220, 235, 255, 0.9), rgba(190, 215, 245, 0.85));
+
+            /* General Variables (can be overridden by themes) */
+            --page-bg: #B0C4DE;
+            --container-bg-start: var(--aero-bg-start);
+            --container-bg-end: var(--aero-bg-end);
+            --container-border: var(--aero-border);
+            --container-glow: var(--aero-glow);
+            --text-color: var(--aero-text);
+            --header-text-color: var(--aero-highlight-text);
+            --button-bg-start: var(--aero-button-bg-start);
+            --button-bg-end: var(--aero-button-bg-end);
+            --button-border: var(--aero-button-border);
+            --button-hover-bg-start: var(--aero-button-hover-bg-start);
+            --button-hover-bg-end: var(--aero-button-hover-bg-end);
+            --button-text-color: var(--aero-highlight-text);
+            --modal-content-bg: var(--modal-bg);
+            --modal-content-header-bg: var(--modal-header-bg);
+            --primary-action-bg-start: #87CEFA;
+            --primary-action-bg-end: #4682B4;
+            --primary-action-hover-bg-start: #add8e6;
+            --primary-action-hover-bg-end: #5f9ea0;
+            --danger-action-bg-start: #ffb6c1;
+            --danger-action-bg-end: #ff69b4;
+            --danger-action-hover-bg-start: #ffc0cb;
+            --danger-action-hover-bg-end: #ff1493;
+            --success-green: #28a745;
+
+
+            --available-lane-bg: #778899;
+            --in-use-lane-bg: #32CD32;
+            --vip-lane-color: #FFD700;
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --border-radius: 8px;
+        }
+
+        /* --- AMF Theme --- */
+        .theme-amf {
+            --page-bg: #1a1a1a;
+            --container-bg-start: rgba(50, 50, 50, 0.85);
+            --container-bg-end: rgba(30, 30, 30, 0.8);
+            --container-border: #D32F2F;
+            --container-glow: rgba(211, 47, 47, 0.1);
+            --text-color: #f0f0f0;
+            --header-text-color: #D32F2F;
+            --button-bg-start: rgba(100, 100, 100, 0.9);
+            --button-bg-end: rgba(80, 80, 80, 0.8);
+            --button-border: #D32F2F;
+            --button-hover-bg-start: rgba(120, 120, 120, 1);
+            --button-hover-bg-end: rgba(100, 100, 100, 0.9);
+            --button-text-color: #ffffff;
+            --modal-content-bg: rgba(40, 40, 40, 0.98);
+            --modal-content-header-bg: linear-gradient(to bottom, #500000, #8B0000);
+            --primary-action-bg-start: #B22222;
+            --primary-action-bg-end: #800000;
+            --primary-action-hover-bg-start: #CC3333;
+            --primary-action-hover-bg-end: #990000;
+            --danger-action-bg-start: #666666;
+            --danger-action-bg-end: #444444;
+            --danger-action-hover-bg-start: #777777;
+            --danger-action-hover-bg-end: #555555;
+            --success-green: #38761d;
+
+
+            --available-lane-bg: #4a4a4a;
+            --in-use-lane-bg: #FF4500;
+            --vip-lane-color: #D32F2F;
+        }
+        .theme-amf .main-header,
+        .theme-amf .modal-header span,
+        .theme-amf .modal-body label,
+        .theme-amf .lane .lane-number,
+        .theme-amf #paymentAmountDue,
+        .theme-amf #paymentCashAmountDue, /* Added for cash section */
+        .theme-amf .lane .vip-badge {
+            color: var(--header-text-color);
+        }
+        .theme-amf .lane .vip-badge { background-color: var(--vip-lane-color); color:white; }
+        .theme-amf .lane.vip { border-color: var(--vip-lane-color); }
+        .theme-amf .lane.available { color: #ccc; }
+        .theme-amf .lane.in-use { color: #fff; }
+        .theme-amf button { color: var(--button-text-color); }
+        .theme-amf .scoreboard-table th { background-color: #8B0000; color: var(--text-color);}
+        .theme-amf .scoreboard-table td { background-color: #2a2a2a; color: #e0e0e0;}
+        .theme-amf .scoreboard-table .current-player-sb td { background-color: #500000 !important; }
+
+
+        /* --- Hollywood Bowl (Pink/White) Theme --- */
+        .theme-hollywood-pink {
+            --page-bg: #fff5f7;
+            --container-bg-start: rgba(255, 255, 255, 0.95);
+            --container-bg-end: rgba(255, 245, 247, 0.9);
+            --container-border: #ffc0cb;
+            --container-glow: rgba(233, 30, 99, 0.1);
+            --text-color: #E91E63;
+            --header-text-color: #C2185B;
+            --button-bg-start: rgba(255, 230, 235, 0.9);
+            --button-bg-end: rgba(255, 200, 215, 0.85);
+            --button-border: #F48FB1;
+            --button-hover-bg-start: rgba(255, 240, 243, 1);
+            --button-hover-bg-end: rgba(255, 210, 225, 0.9);
+            --button-text-color: #AD1457;
+            --modal-content-bg: rgba(255, 250, 253, 0.98);
+            --modal-content-header-bg: linear-gradient(to bottom, #FCE4EC, #F8BBD0);
+            --primary-action-bg-start: #EC407A;
+            --primary-action-bg-end: #D81B60;
+            --primary-action-hover-bg-start: #F06292;
+            --primary-action-hover-bg-end: #E91E63;
+            --danger-action-bg-start: #ef9a9a;
+            --danger-action-bg-end: #e57373;
+            --danger-action-hover-bg-start: #ffcdd2;
+            --danger-action-hover-bg-end: #ef9a9a;
+            --success-green: #E91E63;
+
+
+            --available-lane-bg: #FCE4EC;
+            --in-use-lane-bg: #EC407A;
+            --vip-lane-color: #E91E63;
+        }
+        .theme-hollywood-pink .main-header,
+        .theme-hollywood-pink .modal-header span,
+        .theme-hollywood-pink .modal-body label,
+        .theme-hollywood-pink .lane .lane-number,
+        .theme-hollywood-pink #paymentAmountDue,
+        .theme-hollywood-pink #paymentCashAmountDue, /* Added for cash section */
+        .theme-hollywood-pink .lane .vip-badge {
+            color: var(--header-text-color);
+        }
+        .theme-hollywood-pink .lane.vip { border-color: var(--vip-lane-color); }
+        .theme-hollywood-pink .lane .vip-badge { background-color: var(--vip-lane-color); color:white; }
+        .theme-hollywood-pink .lane.available { color: var(--header-text-color); }
+        .theme-hollywood-pink .lane.in-use { color: #fff; }
+        .theme-hollywood-pink button { color: var(--button-text-color); }
+        .theme-hollywood-pink .scoreboard-table th { background-color: #F8BBD0; color: #AD1457;}
+        .theme-hollywood-pink .scoreboard-table td { background-color: #FFF8FB; color: #C2185B;}
+        .theme-hollywood-pink .scoreboard-table .current-player-sb td { background-color: #FCE4EC !important; }
+
+        body {
+            font-family: var(--font-family); background-color: var(--page-bg); color: var(--text-color);
+            margin: 0; padding: 20px; font-size: 14px; overflow-x: hidden; transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .pos-main-container {
+            background: linear-gradient(to bottom, var(--container-bg-start), var(--container-bg-end));
+            border: 1px solid var(--container-border); border-radius: var(--border-radius); padding: 20px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2), inset 0 1px 1px var(--container-glow);
+            max-width: 1200px; margin: auto; transition: background 0.3s ease, border 0.3s ease;
+        }
+        .main-header {
+            text-align: center; font-size: 2.2em; color: var(--header-text-color);
+            text-shadow: 1px 1px 1px var(--container-glow); margin-bottom: 15px;
+            padding-bottom: 15px; border-bottom: 1px solid var(--container-border);
+            transition: color 0.3s ease, border-bottom 0.3s ease;
+        }
+
+        .fixed-themes-button {
+            position: fixed; bottom: 20px; right: 20px; z-index: 1005;
+        }
+        .fixed-themes-button button {
+            padding: 12px 20px !important; font-size: 1em !important;
+            background: linear-gradient(to bottom, #6c757d, #5a6268) !important;
+            color: white !important; border-color: #545b62 !important;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .fixed-themes-button button:hover {
+            background: linear-gradient(to bottom, #5a6268, #4e555b) !important;
+            border-color: #494e53 !important;
+        }
+
+        .lanes-container {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 20px; margin-bottom: 30px;
+        }
+        .lane {
+            padding: 15px; border-radius: var(--border-radius); text-align: center; cursor: pointer;
+            border: 2px solid var(--container-border);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1), inset 0 1px 1px var(--container-glow);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease, border-color 0.3s ease;
+            position: relative; animation-duration: 1s; animation-iteration-count: infinite;
+        }
+        .lane.blinking { animation-name: blinkLane; }
+        @keyframes blinkLane { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+        .lane:hover { transform: translateY(-3px); box-shadow: 0 5px 10px rgba(0,0,0,0.15), inset 0 1px 1px var(--container-glow); }
+        .lane.available { background-color: var(--available-lane-bg); }
+        .theme-aero .lane.available { color:white;}
+        .lane.in-use { background-color: var(--in-use-lane-bg); color: white; }
+        .lane.vip { border-color: var(--vip-lane-color); border-width: 3px; }
+        .lane .lane-number { font-size: 1.8em; font-weight: bold; margin-bottom: 5px; }
+        .lane .lane-status { font-size: 0.9em; }
+        .lane .lane-players { font-size: 0.8em; margin-top: 5px; min-height: 1.6em; }
+        .lane .vip-badge {
+            position: absolute; top: 5px; right: 5px; background-color: var(--vip-lane-color);
+            color: var(--text-color); padding: 3px 6px; font-size: 0.7em; font-weight: bold; border-radius: 4px;
+        }
+        .theme-aero .lane .vip-badge {color: var(--aero-text);}
+
+        .modal {
+            display: none; position: fixed; z-index: 1050;
+            left: 0; top: 0; width: 100%; height: 100%;
+            overflow: auto; background-color: rgba(0,0,0,0.6);
+            padding-top: 30px;
+        }
+        .modal-content {
+            background: var(--modal-content-bg); margin: 3% auto; padding: 0;
+            border: 1px solid var(--container-border); width: 90%; max-width: 650px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3), inset 0 1px 2px var(--container-glow);
+            overflow: hidden; position: relative;
+            transition: background 0.3s ease, border 0.3s ease;
+        }
+        .modal-header {
+            padding: 15px 20px; background: var(--modal-content-header-bg);
+            border-bottom: 1px solid var(--container-border); color: var(--header-text-color);
+            font-size: 1.5em; font-weight: bold; text-shadow: 0 1px 1px var(--container-glow);
+            display: flex; justify-content: space-between; align-items: center; cursor: grab;
+            transition: background 0.3s ease, border-bottom 0.3s ease, color 0.3s ease;
+        }
+        .modal-header:active { cursor: grabbing; }
+        .modal-header .close-btn {
+            color: var(--text-color); font-size: 1.8em; font-weight: bold;
+            cursor: pointer; background: none; border: none; padding: 0 5px;
+        }
+        .modal-header .close-btn:hover { color: var(--header-text-color); }
+        .modal-body { padding: 20px; line-height: 1.6; max-height: 70vh; overflow-y: auto; }
+        .modal-footer {
+            padding: 15px 20px; text-align: right; background: rgba(220, 230, 240, 0.6);
+            border-top: 1px solid var(--container-border);
+            transition: background 0.3s ease, border-top 0.3s ease;
+        }
+         .theme-amf .modal-footer { background: rgba(50,50,50,0.7); }
+         .theme-hollywood-pink .modal-footer { background: rgba(255,230,235,0.7); }
+
+        .modal-body label { display: block; margin-bottom: 8px; font-weight: bold; color: var(--text-color); }
+        .modal-body input[type="text"], .modal-body input[type="number"], .modal-body select {
+            width: calc(100% - 22px); padding: 10px; margin-bottom: 15px;
+            border: 1px solid var(--button-border); border-radius: 6px; box-sizing: border-box; font-size: 1em;
+            background-color: rgba(255,255,255,0.9);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .theme-amf .modal-body input, .theme-amf .modal-body select,
+        .theme-hollywood-pink .modal-body input, .theme-hollywood-pink .modal-body select {
+            background-color: rgba(220,220,220,0.9); color: #333; border-color: #777;
+        }
+        .theme-hollywood-pink .modal-body input, .theme-hollywood-pink .modal-body select {
+             background-color: rgba(255,245,250,0.9); border-color: var(--container-border);
+        }
+        .modal-body input[type="text"]:focus, .modal-body input[type="number"]:focus, .modal-body select:focus {
+            border-color: var(--header-text-color); box-shadow: 0 0 5px var(--container-border); outline: none;
+        }
+        .modal-body .player-name-input { margin-bottom: 10px; }
+
+        .modal-body button, .modal-footer button {
+            padding: 10px 18px; margin-left: 10px; border: 1px solid var(--button-border);
+            background: linear-gradient(to bottom, var(--button-bg-start), var(--button-bg-end));
+            color: var(--button-text-color); font-weight: bold; border-radius: 6px; cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+        .modal-body button:hover, .modal-footer button:hover {
+            background: linear-gradient(to bottom, var(--button-hover-bg-start), var(--button-hover-bg-end));
+            border-color: var(--header-text-color);
+        }
+        button.primary-action {
+            background: linear-gradient(to bottom, var(--primary-action-bg-start), var(--primary-action-bg-end));
+            color: white;
+        }
+        button.primary-action:hover { background: linear-gradient(to bottom, var(--primary-action-hover-bg-start), var(--primary-action-hover-bg-end)); }
+        button.danger-action {
+            background: linear-gradient(to bottom, var(--danger-action-bg-start), var(--danger-action-bg-end));
+            color: white;
+        }
+        button.danger-action:hover { background: linear-gradient(to bottom, var(--danger-action-hover-bg-start), var(--danger-action-hover-bg-end)); }
+
+        .bumper-selection-grid {
+            display: grid; grid-template-columns: auto 80px 80px; gap: 10px; align-items: center; margin-bottom: 10px;
+        }
+        .bumper-selection-grid strong { font-weight: bold; }
+        .bumper-selection-grid button.active { border-width: 2px; border-color: var(--header-text-color) !important; }
+
+        /* Scoreboard & Console Styling */
+        .scoreboard-tv-screen h3, .bowlers-console-screen-content h3 { margin-top:0; }
+        .scoreboard-table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
+        .scoreboard-table th, .scoreboard-table td {
+            border: 1px solid var(--container-border); padding: 4px; text-align: center; font-size: 0.9em;
+        }
+        .scoreboard-table th { background-color: var(--aero-button-bg-end); color: var(--aero-highlight-text); }
+        .scoreboard-table td.player-name-sb { text-align: left; font-weight: bold; width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
+        .scoreboard-table .frame-roll1, .scoreboard-table .frame-roll2, .scoreboard-table .frame-roll3 { /* For 10th frame */
+            width: 25px; /* Adjust as needed */
+            height: 25px;
+            text-align: center;
+            padding: 2px;
+            border: none; /* Remove input border */
+            background-color: transparent; /* Make input transparent */
+            color: inherit; /* Inherit text color */
+            font-size: 1em;
+            font-family: inherit;
+        }
+        .scoreboard-table .frame-score-sb { font-weight: bold; font-size: 1.1em; }
+        .scoreboard-table .current-player-sb td { background-color: var(--aero-bg-start) !important; }
+        .bowlers-console-screen-content { min-height: 250px; max-width: 450px; margin: auto; text-align:center; }
+
+        .hidden { display: none !important; }
+
+        /* AMF Specific Style for Modify Players Modal if called from console */
+        .modal-content.amf-style-modify .modal-header {
+            background: linear-gradient(to bottom, #500000, #8B0000) !important; color: #FFD700 !important;
+        }
+        .modal-content.amf-style-modify .modal-body {
+            background-color: #2a2a2a !important; color: #f0f0f0 !important;
+        }
+         .modal-content.amf-style-modify .modal-body label,
+         .modal-content.amf-style-modify .bumper-selection-grid strong { color: #FFD700 !important; }
+        .modal-content.amf-style-modify .modal-body input[type="text"] {
+             background-color: #444 !important; color: #fff !important; border-color: #8B0000 !important;
+        }
+        .modal-content.amf-style-modify .bumper-selection-grid button {
+            background: #555 !important; color: #fff !important; border-color: #8B0000 !important;
+        }
+        .modal-content.amf-style-modify .bumper-selection-grid button.active {
+            border-color: #FFD700 !important; background: #8B0000 !important;
+        }
+
+        /* --- EFT Terminal Styles (to match image) --- */
+        #eftTerminalModal .modal-content {
+            background-color: #4A4A4A; border-radius: 10px; padding: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4); max-width: 280px !important; border: 1px solid #555;
+        }
+        #eftTerminalModal .modal-header { display: none !important; }
+        #eftTerminalModal .modal-body { padding: 0 !important; }
+        #eftTerminalModal .terminal-screen-bezel {
+            background-color: #85CCC4; color: white; padding: 15px; text-align: center;
+            font-size: 1.4em; /* Adjusted for potentially longer text */ font-weight: bold; border-radius: 6px; margin-bottom: 12px;
+            position: relative; min-height: 70px; display: flex; align-items: center; justify-content: center;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.15); line-height: 1.3;
+        }
+        #eftTerminalModal #terminalDisplayText {
+            background-color: transparent !important; border: none !important; padding: 0 !important;
+            font-family: var(--font-family); width: 100%; box-sizing: border-box;
+        }
+        #eftTerminalModal .terminal-display-close {
+            position: absolute; top: 2px; right: 4px; background: none; border: none;
+            color: white; font-size: 1.5em; font-weight: bold; cursor: pointer;
+            padding: 5px; line-height: 0.5; z-index: 10;
+        }
+        #eftTerminalModal .terminal-display-close:hover { color: rgba(255,255,255,0.75); }
+        #eftTerminalModal .terminal-keypad {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; padding: 0;
+        }
+        #eftTerminalModal .terminal-keypad button {
+            background-color: #D1D5DB; color: #374151; border: none; border-radius: 5px;
+            padding: 12px 5px; font-size: 1.4em; font-weight: bold; cursor: pointer;
+            transition: background-color 0.15s ease, filter 0.15s ease;
+            display: flex; align-items: center; justify-content: center;
+            min-height: 50px; box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+        }
+        #eftTerminalModal .terminal-keypad button:hover { filter: brightness(0.95); }
+        #eftTerminalModal .terminal-keypad button:active { filter: brightness(0.85); box-shadow: inset 0 1px 2px rgba(0,0,0,0.1); }
+        #eftTerminalModal .terminal-keypad .terminal-red { background-color: #E74C3C; color: white; }
+        #eftTerminalModal .terminal-keypad .terminal-yellow { background-color: #F1C40F; color: #333; }
+        #eftTerminalModal .terminal-keypad .terminal-green { background-color: #2ECC71; color: white; }
+        #eftTerminalModal .terminal-keypad button.terminal-dot { background-color: #D1D5DB; color: #374151; }
+        #eftTerminalModal .terminal-keypad button[data-placeholder="true"] {
+            background-color: transparent !important; box-shadow: none !important;
+            border: none !important; pointer-events: none;
+        }
+        #eftTerminalModal #terminalTapArea { /* This is the new tap area */
+            background-color: #3d3d3d; /* Darker grey for tap area */
+            color: white;
+            border: 2px dashed #666;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 10px;
+            text-align: center;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        #eftTerminalModal #terminalTapArea:hover { background-color: #555; }
+        #eftTerminalModal #terminalTapArea .tap-card-main-text { font-weight: bold; display: block; margin-bottom: 3px;}
+        #eftTerminalModal #terminalTapArea .tap-card-simulate-text { font-size: 0.8em; opacity: 0.8;}
+
+        /* Payment Modal Specific Layouts */
+        #paymentModal .payment-summary p { margin: 5px 0; }
+        #paymentModal .payment-summary strong { color: var(--header-text-color); }
+        #paymentModal .payment-actions {
+            display: flex;
+            justify-content: space-around; /* Or space-between */
+            margin: 20px 0;
+            gap: 10px;
+        }
+        #paymentModal .payment-actions button {
+            flex-grow: 1;
+            padding: 12px 10px;
+            font-size: 1em;
+            margin-left: 0; /* Override default margin */
+        }
+
+        #cardPaymentOptionsDiv, #cashPaymentDetails {
+            border: 1px solid var(--container-border);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-top: 20px;
+            background-color: rgba(0,0,0,0.03); /* Slight background tint */
+        }
+        #cardPaymentOptionsDiv h4, #cashPaymentDetails h4 {
+            margin-top: 0;
+            color: var(--header-text-color);
+            border-bottom: 1px solid var(--container-border);
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+        }
+        #cardPaymentOptionsDiv .card-options-buttons, #cashPaymentDetails .cash-input-area {
+            display: flex;
+            flex-direction: column; /* Stack buttons vertically or side-by-side */
+            gap: 10px;
+        }
+         #cardPaymentOptionsDiv .card-options-buttons button {
+            width: 100%; margin-left:0;
+         }
+        #cashPaymentDetails .cash-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom:10px;
+        }
+        #cashPaymentDetails .cash-input-group label {
+            flex-basis: 180px; /* Adjust as needed */
+            margin-bottom: 0;
+        }
+        #cashPaymentDetails .cash-input-group input[type="number"] {
+            flex-grow: 1;
+            margin-bottom: 0;
+            width: auto; /* Override full width */
+        }
+        #cashPaymentDetails #confirmCashPaymentBtn {
+            width: auto; /* Don't make it full width like card options */
+            display: block; /* Or use flex on parent to align right */
+            margin: 15px 0 0 auto; /* Align to right */
+        }
+        #cashPaymentDetails #paymentCashAmountDue { font-weight: bold; color: var(--header-text-color); }
+        #cashPaymentDetails #changeDue { font-weight: bold; color: var(--success-green); }
+
+
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="theme-aero">
+
+<div class="pos-main-container">
+    <header class="main-header">Bowling Alley POS</header>
+    <div class="lanes-container" id="lanesContainer"></div>
+
+    <div class="fixed-themes-button">
+        <button id="openThemeModalBtn">Themes</button>
+    </div>
+
+    <div id="themeSelectionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header draggable-header">
+                <span>Select a Theme</span>
+                <button class="close-btn" onclick="closeModal('themeSelectionModal')">&times;</button>
+            </div>
+            <div class="modal-body" style="text-align:center;">
+                <button onclick="changeTheme('theme-aero'); closeModal('themeSelectionModal');" style="margin:10px;">Aero (Default)</button>
+                <button onclick="changeTheme('theme-amf'); closeModal('themeSelectionModal');" style="margin:10px;">AMF</button>
+                <button onclick="changeTheme('theme-hollywood-pink'); closeModal('themeSelectionModal');" style="margin:10px;">Hollywood Bowl</button>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeModal('themeSelectionModal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="laneBookingModalStep1" class="modal">
+        <div class="modal-content">
+            <div class="modal-header draggable-header">
+                <span id="bookingModalStep1Title">Book Lane LNUM</span>
+                <button class="close-btn" onclick="closeModal('laneBookingModalStep1')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <label for="numGames">Number of Games:</label>
+                <select id="numGames">
+                    <option value="1">1 Game</option><option value="2">2 Games</option><option value="3">3 Games</option>
+                </select>
+                <label for="numPlayers">Number of Players (Max 6):</label>
+                <input type="number" id="numPlayers" min="1" max="6" value="1">
+                <label for="playerType">Player Type (Primary for pricing estimate):</label>
+                <select id="playerType">
+                    <option value="adult">Adult</option><option value="under16">Under 16</option>
+                    <option value="senior">Senior/Disabled/Carer</option><option value="student">Student</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeModal('laneBookingModalStep1')">Cancel</button>
+                <button onclick="proceedToPlayerNames()" class="primary-action">Next: Player Names</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="laneBookingModalStep2" class="modal">
+        <div class="modal-content">
+            <div class="modal-header draggable-header">
+                <span>Enter Player Names</span><button class="close-btn" onclick="closeModal('laneBookingModalStep2')">&times;</button>
+            </div>
+            <div class="modal-body"><div id="playerNameInputsContainer"></div></div>
+            <div class="modal-footer">
+                <button onclick="backToStep1()">Back</button>
+                <button onclick="proceedToBumpers()" class="primary-action">Next: Bumpers</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="laneBookingModalStep3" class="modal">
+        <div class="modal-content">
+            <div class="modal-header draggable-header">
+                <span>Bumper Selection</span><button class="close-btn" onclick="closeModal('laneBookingModalStep3')">&times;</button>
+            </div>
+            <div class="modal-body"><div id="bumperSelectionContainer"></div></div>
+            <div class="modal-footer">
+                <button onclick="backToStep2()">Back</button>
+                <button onclick="proceedToPayment()" class="primary-action">Proceed to Payment</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header draggable-header">
+                <span>Complete Payment</span><button class="close-btn" onclick="closeModal('paymentModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="payment-summary">
+                    <p>Lane: <strong id="paymentLaneNum"></strong></p>
+                    <p>Total Games: <strong id="paymentNumGames"></strong></p>
+                    <p>Players: <strong id="paymentNumPlayers"></strong></p>
+                    <p style="font-size: 1.3em;">Total Due: <strong id="paymentAmountDue">£0.00</strong></p>
+                </div>
+                <hr style="border-top: 1px solid var(--container-border); margin: 15px 0;">
+                <label for="voucherCode">Voucher Code (Optional):</label>
+                <div style="display:flex; gap:10px; margin-bottom:10px;">
+                    <input type="text" id="voucherCode" placeholder="Enter voucher code" style="flex-grow:1; margin-bottom:0;">
+                    <button onclick="applyVoucher()" style="margin-left:0;">Apply Voucher</button>
+                </div>
+                <p id="voucherStatus" style="margin-top:5px; font-style: italic; min-height:1.2em;"></p>
+                <hr style="border-top: 1px solid var(--container-border); margin: 15px 0;">
+
+                <div class="payment-actions">
+                    <button id="payByCashBtn" onclick="handlePaymentMethodSelect('Cash')" class="primary-action">Pay Cash</button>
+                    <button id="payByCardBtn" onclick="handlePaymentMethodSelect('Card')" class="primary-action">Pay Card</button>
+                </div>
+
+                <div id="cashPaymentDetails" class="hidden">
+                    <h4>Cash Payment</h4>
+                    <p>Amount to pay: <strong id="paymentCashAmountDue">£0.00</strong></p>
+                    <div class="cash-input-group">
+                        <label for="cashTendered">Cash Paid by Customer (£):</label>
+                        <input type="number" id="cashTendered" step="0.01">
+                    </div>
+                    <p>Change Due: <strong id="changeDue">£0.00</strong></p>
+                    <button id="confirmCashPaymentBtn" onclick="confirmCashPayment()" class="primary-action">Confirm Cash Payment</button>
+                </div>
+
+                <div id="cardPaymentOptionsDiv" class="hidden">
+                    <h4>Select Card Payment Method:</h4>
+                     <p>Amount to pay by card: <strong id="paymentCardAmountDue">£0.00</strong></p>
+                    <div class="card-options-buttons">
+                        <button onclick="handleCardPaymentTypeSelect('Skip')">Skip (External/Manual)</button>
+                        <button onclick="handleCardPaymentTypeSelect('Terminal')" class="primary-action">Use Card Terminal</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeModal('paymentModal')">Cancel Transaction</button>
+                </div>
+        </div>
+    </div>
+
+    <div id="eftTerminalModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="terminal-emulator-body-modal">
+                    <div class="terminal-screen-bezel">
+                        <div id="terminalDisplayText" class="terminal-screen-actual">Idle</div>
+                        <button class="terminal-display-close" onclick="closeModal('eftTerminalModal'); resetEftTerminal();">&times;</button>
+                    </div>
+                    <div class="terminal-keypad">
+                        <button onclick="terminalKeyPress('1')">1</button>
+                        <button onclick="terminalKeyPress('2')">2</button>
+                        <button onclick="terminalKeyPress('3')">3</button>
+                        <button class="terminal-red" onclick="terminalClear()">X</button>
+
+                        <button onclick="terminalKeyPress('4')">4</button>
+                        <button onclick="terminalKeyPress('5')">5</button>
+                        <button onclick="terminalKeyPress('6')">6</button>
+                        <button class="terminal-yellow" onclick="terminalBackspace()">&lt;</button>
+
+                        <button onclick="terminalKeyPress('7')">7</button>
+                        <button onclick="terminalKeyPress('8')">8</button>
+                        <button onclick="terminalKeyPress('9')">9</button>
+                        <button class="terminal-green" onclick="terminalConfirm()">✓</button>
+
+                        <button class="terminal-dot" onclick="terminalKeyPress('.')">.</button>
+                        <button onclick="terminalKeyPress('0')">0</button>
+                        <button data-placeholder="true" style="visibility: hidden;"></button>
+                        <button data-placeholder="true" style="visibility: hidden;"></button>
+                    </div>
+                    <div id="terminalTapArea" class="hidden" onclick="handleCardTap()">
+                        <span class="tap-card-main-text">TAP CARD HERE</span>
+                        <span class="tap-card-simulate-text">(Click to Simulate)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="laneOptionsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header draggable-header">
+                <span id="laneOptionsTitle">Options for Lane LNUM</span><button class="close-btn" onclick="closeModal('laneOptionsModal')">&times;</button>
+            </div>
+            <div class="modal-body" style="text-align: center;">
+                <button onclick="openModifyPlayersModal()" style="margin:10px; width:80%; padding:15px;" class="primary-action">Modify Players / Bumpers</button>
+                <button onclick="openScoreboardModal()" style="margin:10px; width:80%; padding:15px;">View Scoreboard</button>
+                <button onclick="openBowlersConsoleModal()" style="margin:10px; width:80%; padding:15px;">Bowler's Console</button>
+                <hr style="border-top: 1px solid var(--container-border); margin: 20px 0;">
+                <button onclick="markGameAsFinished()" style="margin:10px; width:80%; padding:15px;" class="primary-action">Mark Game Finished</button>
+                <button onclick="finishLaneEarly()" style="margin:10px; width:80%; padding:15px;" class="danger-action">Clear Lane Now</button>
+            </div>
+            <div class="modal-footer"><button onclick="closeModal('laneOptionsModal')">Close</button></div>
+        </div>
+    </div>
+
+    <div id="modifyPlayersModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header draggable-header">
+                <span id="modifyPlayersTitle">Modify Players for Lane LNUM</span><button class="close-btn" onclick="closeModal('modifyPlayersModal')">&times;</button>
+            </div>
+            <div class="modal-body" id="modifyPlayersModalBody">
+                <p><em>Modify player names and bumper settings.</em></p>
+                <div id="modifyPlayerInputsContainer"></div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeModal('modifyPlayersModal')">Cancel</button>
+                <button onclick="savePlayerModifications()" class="primary-action">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="scoreboardModal" class="modal">
+        <div class="modal-content" style="max-width: 95%; width:auto;">
+            <div class="modal-header draggable-header">
+                <span id="scoreboardTitle">Scoreboard - Lane LNUM</span><button class="close-btn" onclick="closeModal('scoreboardModal')">&times;</button>
+            </div>
+            <div class="modal-body scoreboard-tv-screen">
+                <h3 id="sbLaneInfo">Lane LNUM - Game GNUM</h3>
+                <p>Current Bowler: <b id="sbCurrentBowlerName">N/A</b> | Frame: <b id="sbCurrentFrameDisp">1</b></p>
+                <div id="scoreboardTableContainer" style="overflow-x:auto;">
+                    <table class="scoreboard-table">
+                        <thead id="scoreboardHeader"></thead><tbody id="scoreboardBody"></tbody>
+                    </table>
+                </div>
+                </div>
+            <div class="modal-footer"><button onclick="closeModal('scoreboardModal')">Close Scoreboard</button></div>
+        </div>
+    </div>
+
+    <div id="bowlersConsoleModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header draggable-header">
+                <span id="bowlersConsoleTitle">Bowler's Console - Lane LNUM</span><button class="close-btn" onclick="closeModal('bowlersConsoleModal')">&times;</button>
+            </div>
+            <div class="modal-body bowlers-console-screen-content">
+                 <h3 id="bcLaneInfoConsole">Lane LNUM</h3>
+                 <p>Up Now:</p>
+                 <p style="font-size: 2em; color: var(--vip-lane-color);" id="bcCurrentBowlerNameConsoleDisp">Player Name</p>
+                 <p>Frame: <span id="bcCurrentFrameConsoleDisp">1</span></p>
+                 <p>Previous Score: <span id="bcPrevScoreConsoleDisp">-</span></p>
+                 <button onclick="openModifyPlayersFromConsole()" style="margin-top:20px;" class="primary-action">Modify Bowlers</button>
+            </div>
+            <div class="modal-footer"><button onclick="closeModal('bowlersConsoleModal')">Close</button></div>
+        </div>
+    </div>
+
+</div>
+<script>
+    // --- Constants & Configuration ---
+    const NUM_LANES = 10;
+    const VIP_LANES = [8, 9];
+    const MAX_PLAYERS_PER_LANE = 6;
+    const PRICES_BOWLING = {
+        adult: { name: "Adult (16+)", price: 7.20 },
+        under16: { name: "Under 16", price: 6.20 },
+        senior: { name: "Senior/Disabled/Carer", price: 3.60 },
+        student: { name: "Student", price: 6.48 }
+    };
+    const VIP_UPGRADE_PER_PERSON = 1.00;
+    const GAME_END_BLINK_DURATION_MS = 30000;
+    const GAME_END_COOLDOWN_MS = 45000; // Total time from game end signal to available
+    const AUTOMATED_SCORING_INTERVAL_MS = 3000; // How often to simulate a roll
+
+    // --- Application State ---
+    let lanesData = []; // Holds state for each lane, including game simulation timers
+    let currentBookingDetails = {};
+    let currentLaneBooking = null;
+    let paymentMethodSelected = null; // 'Cash' or 'Card'
+    let activeVoucherDiscount = 0;
+
+    // EFT Terminal State
+    let eftTerminalState = 'idle'; // idle, awaiting_price, awaiting_tap, processing, approved, declined
+    let eftTerminalInputAmount = ""; // For price input by user
+    let eftTerminalExpectedAmount = 0; // Amount passed from POS
+
+    // --- DOM Elements ---
+    const lanesContainer = document.getElementById('lanesContainer');
+    const openThemeModalBtn = document.getElementById('openThemeModalBtn');
+    // Booking Modals
+    const bookingModalStep1Title = document.getElementById('bookingModalStep1Title');
+    const numGamesSelect = document.getElementById('numGames');
+    const numPlayersInput = document.getElementById('numPlayers');
+    const playerTypeSelect = document.getElementById('playerType');
+    const playerNameInputsContainer = document.getElementById('playerNameInputsContainer');
+    const bumperSelectionContainer = document.getElementById('bumperSelectionContainer');
+    // Payment Modal elements
+    const paymentModal = document.getElementById('paymentModal');
+    const paymentLaneNumSpan = document.getElementById('paymentLaneNum');
+    const paymentNumGamesSpan = document.getElementById('paymentNumGames');
+    const paymentNumPlayersSpan = document.getElementById('paymentNumPlayers');
+    const paymentAmountDueSpan = document.getElementById('paymentAmountDue'); // Total due display
+    const voucherCodeInput = document.getElementById('voucherCode');
+    const voucherStatusP = document.getElementById('voucherStatus');
+    const cashPaymentDetailsDiv = document.getElementById('cashPaymentDetails');
+    const paymentCashAmountDue = document.getElementById('paymentCashAmountDue');
+    const cashTenderedInput = document.getElementById('cashTendered');
+    const changeDueSpan = document.getElementById('changeDue');
+    const confirmCashPaymentBtn = document.getElementById('confirmCashPaymentBtn');
+    const cardPaymentOptionsDiv = document.getElementById('cardPaymentOptionsDiv');
+    const paymentCardAmountDue = document.getElementById('paymentCardAmountDue');
+    // EFT Terminal Modal elements
+    const eftTerminalModal = document.getElementById('eftTerminalModal');
+    const terminalDisplayText = document.getElementById('terminalDisplayText');
+    const terminalTapArea = document.getElementById('terminalTapArea');
+    // Lane Options Modal elements
+    const laneOptionsModal = document.getElementById('laneOptionsModal');
+    const laneOptionsTitle = document.getElementById('laneOptionsTitle');
+    // Modify Players Modal elements
+    const modifyPlayersModal = document.getElementById('modifyPlayersModal');
+    const modifyPlayersTitle = document.getElementById('modifyPlayersTitle');
+    const modifyPlayerInputsContainer = document.getElementById('modifyPlayerInputsContainer');
+    // Scoreboard Modal elements
+    const scoreboardModal = document.getElementById('scoreboardModal');
+    const scoreboardTitle = document.getElementById('scoreboardTitle');
+    const sbLaneInfo = document.getElementById('sbLaneInfo');
+    const sbCurrentBowlerName = document.getElementById('sbCurrentBowlerName');
+    const sbCurrentFrameDisp = document.getElementById('sbCurrentFrameDisp');
+    const scoreboardHeader = document.getElementById('scoreboardHeader');
+    const scoreboardBody = document.getElementById('scoreboardBody');
+    // Bowlers Console elements
+    const bowlersConsoleModal = document.getElementById('bowlersConsoleModal');
+    const bowlersConsoleTitle = document.getElementById('bowlersConsoleTitle');
+    const bcLaneInfoConsole = document.getElementById('bcLaneInfoConsole');
+    const bcCurrentBowlerNameConsoleDisp = document.getElementById('bcCurrentBowlerNameConsoleDisp');
+    const bcCurrentFrameConsoleDisp = document.getElementById('bcCurrentFrameConsoleDisp');
+    const bcPrevScoreConsoleDisp = document.getElementById('bcPrevScoreConsoleDisp');
+
+    // --- THEME SWITCHING ---
+    function changeTheme(themeName) {
+        document.body.className = themeName;
+        console.log(`Theme changed to: ${themeName}`);
+    }
+    if(openThemeModalBtn) {
+        openThemeModalBtn.addEventListener('click', () => openModal('themeSelectionModal'));
+    }
+
+    // --- DRAGGABLE MODALS ---
+    function makeModalDraggable(modalElement) {
+        let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        const header = modalElement.querySelector(".draggable-header");
+        if (header) { header.onmousedown = dragMouseDown; }
+
+        function dragMouseDown(e) {
+            e = e || window.event;
+            pos3 = e.clientX; pos4 = e.clientY;
+            document.onmouseup = closeDragElement; document.onmousemove = elementDrag;
+        }
+        function elementDrag(e) {
+            e = e || window.event; e.preventDefault();
+            pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY;
+            pos3 = e.clientX; pos4 = e.clientY;
+            modalElement.style.top = (modalElement.offsetTop - pos2) + "px";
+            modalElement.style.left = (modalElement.offsetLeft - pos1) + "px";
+        }
+        function closeDragElement() { document.onmouseup = null; document.onmousemove = null; }
+    }
+
+    // --- Initialization ---
+    function initializeApp() {
+        initializeLanes();
+        document.querySelectorAll('.modal').forEach(modal => {
+            const modalContent = modal.querySelector('.modal-content');
+            if (modalContent && modalContent.querySelector('.draggable-header')) {
+                makeModalDraggable(modalContent);
+            }
+        });
+        numGamesSelect.addEventListener('change', updatePriceEstimateStep1);
+        numPlayersInput.addEventListener('change', updatePriceEstimateStep1);
+        numPlayersInput.addEventListener('keyup', updatePriceEstimateStep1);
+        playerTypeSelect.addEventListener('change', updatePriceEstimateStep1);
+        cashTenderedInput.addEventListener('input', calculateChange);
+        cashTenderedInput.addEventListener('keyup', calculateChange);
+    }
+    function updatePriceEstimateStep1() { /* Optional: show a quick price estimate on step 1 */ }
+
+    // --- Lane Logic ---
+    function initializeLanes() {
+        lanesData = [];
+        for (let i = 1; i <= NUM_LANES; i++) {
+            lanesData.push({
+                id: `lane-${i}`, number: i, isVip: VIP_LANES.includes(i), status: 'available',
+                players: [], numGames: 0, gameStartTime: null, currentTotal: 0,
+                bumpersInfo: {}, scores: {},
+                currentBowlerIndex: 0, currentFrame: 1, // currentFrame is overall for the booking
+                pinsStanding: 10,
+                gameSimTimer: null, gameLog: [], gameJustEndedBlinking: false, gameEndBlinkTimer: null,
+                automatedScoringTimer: null // Timer for automated score simulation
+            });
+        }
+        renderLanes();
+    }
+
+    function renderLanes() {
+        lanesContainer.innerHTML = '';
+        lanesData.forEach(lane => {
+            const laneDiv = document.createElement('div');
+            laneDiv.className = `lane ${lane.status}`;
+            laneDiv.dataset.laneId = lane.id;
+            if (lane.gameJustEndedBlinking) laneDiv.classList.add('blinking');
+            else laneDiv.classList.remove('blinking');
+
+            if (lane.isVip) {
+                laneDiv.classList.add('vip');
+                const vipBadge = document.createElement('span');
+                vipBadge.className = 'vip-badge'; vipBadge.textContent = 'VIP';
+                laneDiv.appendChild(vipBadge);
+            }
+            const laneNumSpan = document.createElement('div');
+            laneNumSpan.className = 'lane-number'; laneNumSpan.textContent = `Lane ${lane.number}`;
+            laneDiv.appendChild(laneNumSpan);
+
+            const laneStatusSpan = document.createElement('div');
+            laneStatusSpan.className = 'lane-status';
+            laneStatusSpan.textContent = lane.status === 'available' ? 'Available' : (lane.gameJustEndedBlinking ? "Game Ending" : 'In Use');
+            laneDiv.appendChild(laneStatusSpan);
+
+            const lanePlayersSpan = document.createElement('div');
+            lanePlayersSpan.className = 'lane-players';
+            if(lane.status === 'in-use' && lane.players.length > 0) {
+                lanePlayersSpan.textContent = lane.players.map(p => p.name.substring(0,5)).join(', ');
+            } else { lanePlayersSpan.textContent = '-'; }
+            laneDiv.appendChild(lanePlayersSpan);
+            laneDiv.onclick = () => handleLaneClick(lane.id);
+            lanesContainer.appendChild(laneDiv);
+        });
+    }
+
+    function handleLaneClick(laneId) {
+        const lane = lanesData.find(l => l.id === laneId);
+        if (!lane) { console.error("Lane data not found for ID:", laneId); return; }
+        currentLaneBooking = lane;
+
+        if (lane.status === 'available') {
+            currentBookingDetails = { laneId: lane.id, isVip: lane.isVip, numGames: 1, numPlayers: 1, primaryPlayerType: 'adult', playerNames: [], bumpersData:[] };
+            bookingModalStep1Title.textContent = `Book Lane ${lane.number}` + (lane.isVip ? " (VIP)" : "");
+            numPlayersInput.value = currentBookingDetails.numPlayers;
+            numGamesSelect.value = currentBookingDetails.numGames;
+            playerTypeSelect.value = currentBookingDetails.primaryPlayerType;
+            openModal('laneBookingModalStep1');
+        } else {
+            laneOptionsTitle.textContent = `Options for Lane ${lane.number}`;
+            openModal('laneOptionsModal');
+        }
+    }
+
+    // --- Booking Steps ---
+    function proceedToPlayerNames() {
+        const numGames = parseInt(numGamesSelect.value);
+        const numPlayers = parseInt(numPlayersInput.value);
+        if (isNaN(numPlayers) || numPlayers < 1 || numPlayers > MAX_PLAYERS_PER_LANE) {
+            alert(`Please enter a valid number of players (1-${MAX_PLAYERS_PER_LANE}).`); return;
+        }
+        currentBookingDetails.numGames = numGames;
+        currentBookingDetails.numPlayers = numPlayers;
+        currentBookingDetails.primaryPlayerType = playerTypeSelect.value;
+
+        playerNameInputsContainer.innerHTML = '';
+        for (let i = 1; i <= numPlayers; i++) {
+            const label = document.createElement('label'); label.textContent = `Player ${i} Name:`;
+            const input = document.createElement('input'); input.type = 'text'; input.id = `playerName${i}`;
+            input.className = 'player-name-input'; input.placeholder = `Enter name for Player ${i}`; input.value = `Player ${i}`;
+            playerNameInputsContainer.appendChild(label); playerNameInputsContainer.appendChild(input);
+        }
+        closeModal('laneBookingModalStep1'); openModal('laneBookingModalStep2');
+    }
+    function backToStep1() { closeModal('laneBookingModalStep2'); openModal('laneBookingModalStep1'); }
+
+    function proceedToBumpers() {
+        currentBookingDetails.playerNames = [];
+        let allNamesValid = true;
+        for (let i = 1; i <= currentBookingDetails.numPlayers; i++) {
+            const nameInput = document.getElementById(`playerName${i}`);
+            if (!nameInput || !nameInput.value.trim()) {
+                alert(`Please enter a name for Player ${i}.`); allNamesValid = false; break;
+            }
+            currentBookingDetails.playerNames.push(nameInput.value.trim());
+        }
+        if (!allNamesValid) return;
+
+        bumperSelectionContainer.innerHTML = '<p>Select bumpers for each player:</p>';
+        currentBookingDetails.playerNames.forEach((name, index) => {
+            const playerDiv = document.createElement('div'); playerDiv.className = 'bumper-selection-grid';
+            playerDiv.innerHTML = `<strong>${name}:</strong>
+                                   <button onclick="selectBumper(${index}, true, this)" class="bumper-btn-yes">Yes</button>
+                                   <button onclick="selectBumper(${index}, false, this)" class="bumper-btn-no active">No</button>`;
+            bumperSelectionContainer.appendChild(playerDiv);
+        });
+        currentBookingDetails.bumpersData = Array(currentBookingDetails.numPlayers).fill(false);
+        closeModal('laneBookingModalStep2'); openModal('laneBookingModalStep3');
+    }
+    window.selectBumper = function(playerIndex, wantsBumpers, buttonElement) {
+        currentBookingDetails.bumpersData[playerIndex] = wantsBumpers;
+        const parentDiv = buttonElement.parentElement;
+        parentDiv.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
+        buttonElement.classList.add('active');
+    };
+    function backToStep2() {
+        closeModal('laneBookingModalStep3'); openModal('laneBookingModalStep2');
+        if (currentBookingDetails.playerNames && currentBookingDetails.playerNames.length > 0) {
+            for (let i = 1; i <= currentBookingDetails.numPlayers; i++) {
+                const nameInput = document.getElementById(`playerName${i}`);
+                if(nameInput && currentBookingDetails.playerNames[i-1]) { nameInput.value = currentBookingDetails.playerNames[i-1]; }
+            }
+        }
+    }
+
+    // --- Payment Logic ---
+    function calculatePrice() {
+        let total = 0;
+        if (!currentBookingDetails || !PRICES_BOWLING[currentBookingDetails.primaryPlayerType]) return 0;
+        const basePricePerGame = PRICES_BOWLING[currentBookingDetails.primaryPlayerType].price;
+        total = currentBookingDetails.numPlayers * basePricePerGame * currentBookingDetails.numGames;
+        if (currentBookingDetails.isVip) {
+            total += currentBookingDetails.numPlayers * VIP_UPGRADE_PER_PERSON * currentBookingDetails.numGames;
+        }
+        return total;
+    }
+
+    function proceedToPayment() {
+        if (!currentLaneBooking || !currentBookingDetails.playerNames || currentBookingDetails.playerNames.length === 0) {
+             alert("Player details missing."); return;
+        }
+        const calculatedTotal = calculatePrice();
+        activeVoucherDiscount = 0; voucherCodeInput.value = ""; voucherStatusP.textContent = "";
+
+        paymentLaneNumSpan.textContent = currentLaneBooking.number + (currentLaneBooking.isVip ? " (VIP)" : "");
+        paymentNumGamesSpan.textContent = currentBookingDetails.numGames;
+        paymentNumPlayersSpan.textContent = currentBookingDetails.numPlayers;
+        paymentAmountDueSpan.textContent = `£${calculatedTotal.toFixed(2)}`;
+        currentBookingDetails.calculatedTotal = calculatedTotal;
+
+        // Reset payment sections
+        cashPaymentDetailsDiv.classList.add('hidden');
+        cardPaymentOptionsDiv.classList.add('hidden');
+        paymentMethodSelected = null;
+
+        closeModal('laneBookingModalStep3'); openModal('paymentModal');
+    }
+
+    function applyVoucher() {
+        const code = voucherCodeInput.value.trim().toUpperCase();
+        const amountDueBeforeThisVoucher = currentBookingDetails.calculatedTotal - activeVoucherDiscount;
+        if (amountDueBeforeThisVoucher <= 0) { voucherStatusP.textContent = "Total already zero or less."; return; }
+        let discountAppliedThisTime = 0;
+        if (code === "BOWL10") discountAppliedThisTime = Math.min(amountDueBeforeThisVoucher, Math.max(0, amountDueBeforeThisVoucher * 0.10), 10.00);
+        else if (code === "FREEGAME") discountAppliedThisTime = Math.min(amountDueBeforeThisVoucher, PRICES_BOWLING[currentBookingDetails.primaryPlayerType].price);
+        else { voucherStatusP.textContent = "Invalid voucher code."; return; }
+
+        if(discountAppliedThisTime <=0) { voucherStatusP.textContent = "Voucher cannot be applied or has no value."; return; }
+        activeVoucherDiscount += discountAppliedThisTime;
+        voucherStatusP.textContent = `Voucher ${code} applied! -£${discountAppliedThisTime.toFixed(2)}`;
+        const newTotal = currentBookingDetails.calculatedTotal - activeVoucherDiscount;
+        paymentAmountDueSpan.textContent = `£${newTotal.toFixed(2)}`;
+        voucherCodeInput.value = "";
+    }
+
+    function handlePaymentMethodSelect(method) {
+        paymentMethodSelected = method;
+        const finalAmountDue = Math.max(0, currentBookingDetails.calculatedTotal - activeVoucherDiscount);
+
+        cashPaymentDetailsDiv.classList.add('hidden');
+        cardPaymentOptionsDiv.classList.add('hidden');
+
+        if (finalAmountDue === 0) {
+             alert("Total is £0.00. Completing transaction.");
+             finalizeBooking(0, "Fully Discounted"); return;
+        }
+
+        if (method === 'Cash') {
+            paymentCashAmountDue.textContent = `£${finalAmountDue.toFixed(2)}`;
+            cashTenderedInput.value = ''; // Clear previous tendered
+            changeDueSpan.textContent = '£0.00';
+            cashPaymentDetailsDiv.classList.remove('hidden');
+            cashTenderedInput.focus();
+        } else if (method === 'Card') {
+            paymentCardAmountDue.textContent = `£${finalAmountDue.toFixed(2)}`;
+            cardPaymentOptionsDiv.classList.remove('hidden');
+        }
+    }
+
+    function calculateChange() {
+        const amountDue = Math.max(0, currentBookingDetails.calculatedTotal - activeVoucherDiscount);
+        const tendered = parseFloat(cashTenderedInput.value) || 0;
+        const change = tendered - amountDue;
+        changeDueSpan.textContent = change >= 0 ? `£${change.toFixed(2)}` : '£0.00';
+    }
+
+    function confirmCashPayment() {
+        const finalAmountDue = Math.max(0, currentBookingDetails.calculatedTotal - activeVoucherDiscount);
+        const tendered = parseFloat(cashTenderedInput.value);
+        if (isNaN(tendered) || tendered < finalAmountDue) {
+            alert("Cash tendered is insufficient or invalid."); return;
+        }
+        alert(`Payment successful by Cash. Change: ${changeDueSpan.textContent}`);
+        finalizeBooking(finalAmountDue, 'Cash');
+    }
+
+    function handleCardPaymentTypeSelect(type) {
+        const finalAmountDue = Math.max(0, currentBookingDetails.calculatedTotal - activeVoucherDiscount);
+        if (type === 'Skip') {
+            alert("Card payment marked as External/Manual.");
+            finalizeBooking(finalAmountDue, 'Card (Skipped)');
+        } else if (type === 'Terminal') {
+            eftTerminalExpectedAmount = finalAmountDue;
+            resetEftTerminal(); // This will set state to awaiting_price
+            openModal('eftTerminalModal');
+        }
+    }
+
+    function finalizeBooking(amountPaid, paymentMethod) {
+        if (!currentLaneBooking) return;
+        currentLaneBooking.status = 'in-use';
+        currentLaneBooking.numGames = currentBookingDetails.numGames;
+        currentLaneBooking.players = currentBookingDetails.playerNames.map((name, index) => ({
+            name: name, bumpers: currentBookingDetails.bumpersData[index]
+        }));
+        currentLaneBooking.currentTotal = amountPaid;
+        currentLaneBooking.gameStartTime = new Date();
+        currentLaneBooking.bumpersInfo = currentBookingDetails.playerNames.reduce((acc, name, index) => {
+            acc[name] = currentBookingDetails.bumpersData[index]; return acc;
+        }, {});
+        currentLaneBooking.scores = {};
+        currentLaneBooking.players.forEach(p => {
+            currentLaneBooking.scores[p.name] = Array(10).fill(null).map(() => ({ rolls: [], frameScore: null, cumulativeScore: 0 }));
+        });
+        currentLaneBooking.currentBowlerIndex = 0;
+        currentLaneBooking.currentFrame = 1;
+        currentLaneBooking.pinsStanding = 10;
+        currentLaneBooking.gameLog = [`Game started: ${currentLaneBooking.numGames} games. Players: ${currentLaneBooking.players.map(p=>p.name).join(', ')}`];
+        currentLaneBooking.gameJustEndedBlinking = false;
+        if (currentLaneBooking.gameEndBlinkTimer) clearTimeout(currentLaneBooking.gameEndBlinkTimer);
+
+        startAutomatedScoring(currentLaneBooking); // Start automated scoring
+
+        renderLanes();
+        closeModal('paymentModal');
+        alert(`Lane ${currentLaneBooking.number} booking complete! Game has started with ${paymentMethod}.`);
+    }
+
+    // --- EFT Terminal Logic ---
+    function resetEftTerminal() {
+        eftTerminalState = 'awaiting_price';
+        eftTerminalInputAmount = "";
+        terminalDisplayText.textContent = 'Enter Price:';
+        terminalTapArea.classList.add('hidden');
+    }
+    function terminalKeyPress(key) {
+        if (eftTerminalState === 'awaiting_price') {
+            if (key === '.' && eftTerminalInputAmount.includes('.')) return;
+            if (key === '.' && eftTerminalInputAmount === "") eftTerminalInputAmount = "0";
+            if (eftTerminalInputAmount.length < 8) {
+                eftTerminalInputAmount += key;
+                terminalDisplayText.textContent = `£${eftTerminalInputAmount}`;
+            }
+        }
+    }
+    function terminalBackspace() {
+        if (eftTerminalState === 'awaiting_price' && eftTerminalInputAmount.length > 0) {
+            eftTerminalInputAmount = eftTerminalInputAmount.slice(0, -1);
+            terminalDisplayText.textContent = eftTerminalInputAmount ? `£${eftTerminalInputAmount}` : 'Enter Price:';
+        }
+    }
+    function terminalClear() { // X Button
+        if (eftTerminalState === 'awaiting_price') {
+            eftTerminalInputAmount = "";
+            terminalDisplayText.textContent = 'Enter Price:';
+        } else if (eftTerminalState === 'awaiting_tap' || eftTerminalState === 'processing') {
+            terminalDisplayText.textContent = 'Cancelled';
+            eftTerminalState = 'idle';
+            setTimeout(() => { closeModal('eftTerminalModal'); resetEftTerminal(); }, 1200);
+        } else { resetEftTerminal(); }
+    }
+    function terminalConfirm() { // Tick Button
+        if (eftTerminalState === 'awaiting_price') {
+            const enteredPrice = parseFloat(eftTerminalInputAmount);
+            if (isNaN(enteredPrice) || enteredPrice <= 0) {
+                terminalDisplayText.textContent = "Invalid Price";
+                setTimeout(() => { if(eftTerminalState==='awaiting_price') {terminalDisplayText.textContent = "Enter Price:"; eftTerminalInputAmount = "";}}, 1500);
+                return;
+            }
+            // For this flow, we assume the entered price IS the expected amount.
+            // Or, you could compare with eftTerminalExpectedAmount if it was pre-filled.
+            // For now, let's use the entered price.
+            eftTerminalExpectedAmount = enteredPrice;
+            eftTerminalState = 'awaiting_tap';
+            terminalDisplayText.textContent = `Tap for £${eftTerminalExpectedAmount.toFixed(2)}`;
+            terminalTapArea.classList.remove('hidden');
+        }
+    }
+    function handleCardTap() {
+        if (eftTerminalState === 'awaiting_tap') {
+            eftTerminalState = 'processing';
+            terminalDisplayText.textContent = 'Processing...';
+            terminalTapArea.classList.add('hidden');
+            setTimeout(() => {
+                if (Math.random() > 0.1) { // 90% approval
+                    terminalDisplayText.textContent = 'Approved';
+                    eftTerminalState = 'approved';
+                    finalizeBooking(eftTerminalExpectedAmount, 'Card (Terminal)');
+                } else {
+                    terminalDisplayText.textContent = 'Declined';
+                    eftTerminalState = 'declined';
+                }
+                setTimeout(() => { closeModal('eftTerminalModal'); resetEftTerminal(); }, 2000);
+            }, 1500);
+        }
+    }
+
+    // --- In-Use Lane Options ---
+    function openModifyPlayersModal(isFromConsole = false) {
+        if (!currentLaneBooking || currentLaneBooking.status !== 'in-use') return;
+        const modalContentElement = modifyPlayersModal.querySelector('.modal-content');
+        if(isFromConsole && document.body.classList.contains('theme-amf')) {
+            modalContentElement.classList.add('amf-style-modify');
+        } else { modalContentElement.classList.remove('amf-style-modify'); }
+
+        modifyPlayersTitle.textContent = `Modify Players - Lane ${currentLaneBooking.number}`;
+        modifyPlayerInputsContainer.innerHTML = "";
+        currentLaneBooking.players.forEach((player, index) => {
+            const playerEntryDiv = document.createElement('div'); playerEntryDiv.style.marginBottom = '15px';
+            const currentBumpers = player.bumpers;
+            playerEntryDiv.innerHTML = `<label for="modPlayerName${index}">P${index + 1} Name:</label>
+                                       <input type="text" id="modPlayerName${index}" value="${player.name}">
+                                       <label>Bumpers:</label>
+                                       <div class="bumper-selection-grid" style="margin-left:10px;">
+                                           <span>${player.name.substring(0,10)}:</span>
+                                           <button data-player-index="${index}" data-player-name="${player.name}" data-bumper-value="true" class="mod-bumper-btn ${currentBumpers ? 'active' : ''}" onclick="toggleModifyBumper(this)">Yes</button>
+                                           <button data-player-index="${index}" data-player-name="${player.name}" data-bumper-value="false" class="mod-bumper-btn ${!currentBumpers ? 'active' : ''}" onclick="toggleModifyBumper(this)">No</button>
+                                       </div>`;
+            modifyPlayerInputsContainer.appendChild(playerEntryDiv);
+        });
+        if(laneOptionsModal.style.display === 'block') closeModal('laneOptionsModal');
+        if(bowlersConsoleModal.style.display === 'block') closeModal('bowlersConsoleModal');
+        openModal('modifyPlayersModal');
+    }
+    window.toggleModifyBumper = function(buttonElement) {
+        if (!currentLaneBooking) return;
+        const parentDiv = buttonElement.parentElement;
+        parentDiv.querySelectorAll('.mod-bumper-btn').forEach(btn => btn.classList.remove('active'));
+        buttonElement.classList.add('active');
+    };
+    function savePlayerModifications() {
+        if (!currentLaneBooking) return;
+        const oldPlayerNames = currentLaneBooking.players.map(p => p.name);
+        const newPlayersData = [];
+
+        currentLaneBooking.players.forEach((player, index) => {
+            const nameInput = document.getElementById(`modPlayerName${index}`);
+            const newName = (nameInput && nameInput.value.trim()) ? nameInput.value.trim() : `Player ${index + 1}`;
+            let newBumperStatus = player.bumpers; // Keep old if not changed
+            const bumperButtons = modifyPlayerInputsContainer.querySelectorAll(`.mod-bumper-btn[data-player-index="${index}"]`);
+            bumperButtons.forEach(btn => {
+                if (btn.classList.contains('active')) {
+                    newBumperStatus = (btn.dataset.bumperValue === 'true');
+                }
+            });
+            newPlayersData.push({ name: newName, bumpers: newBumperStatus });
+        });
+
+        // Update player names and scores object keys
+        const newScores = {};
+        newPlayersData.forEach((newPlayer, index) => {
+            const oldName = oldPlayerNames[index];
+            if (currentLaneBooking.scores[oldName]) {
+                newScores[newPlayer.name] = currentLaneBooking.scores[oldName];
+            } else { // If new player or name changed so much old one not found
+                 newScores[newPlayer.name] = Array(10).fill(null).map(() => ({ rolls: [], frameScore: null, cumulativeScore: 0 }));
+            }
+        });
+        currentLaneBooking.players = newPlayersData;
+        currentLaneBooking.scores = newScores;
+
+        renderLanes();
+        updateScoreboardHeaderAndPlayers(); // If scoreboard is open
+        alert("Player details updated for Lane " + currentLaneBooking.number);
+        closeModal('modifyPlayersModal');
+    }
+
+    // --- Scoreboard (Now Read-Only, scores updated by simulation) ---
+    function openScoreboardModal() {
+        if (!currentLaneBooking || currentLaneBooking.status !== 'in-use') return;
+        scoreboardTitle.textContent = `Scoreboard - Lane ${currentLaneBooking.number}`;
+        renderScoreboardDisplay(); // Initial render
+        if(laneOptionsModal.style.display === 'block') closeModal('laneOptionsModal');
+        openModal('scoreboardModal');
+    }
+
+    function renderScoreboardDisplay() {
+        if (!currentLaneBooking) return;
+        const lane = currentLaneBooking;
+        const players = lane.players;
+        if (!players || players.length === 0) { // No players, clear scoreboard
+            scoreboardHeader.innerHTML = ''; scoreboardBody.innerHTML = '';
+            sbCurrentBowlerName.textContent = "N/A"; sbCurrentFrameDisp.textContent = "N/A";
+            sbLaneInfo.textContent = `Lane ${lane.number}`;
+            return;
+        }
+
+        const numFrames = 10; // Standard 10 frames
+        const gameNumber = Math.floor((lane.currentFrame -1) / 10) + 1;
+        const frameInCurrentGame = ((lane.currentFrame -1) % 10) + 1;
+
+        sbLaneInfo.textContent = `Lane ${lane.number} - Game ${gameNumber} of ${lane.numGames}`;
+        scoreboardHeader.innerHTML = '';
+        const hr = document.createElement('tr');
+        const thPlayer = document.createElement('th'); thPlayer.textContent = "Player"; hr.appendChild(thPlayer);
+        for (let f = 1; f <= numFrames; f++) {
+            const th = document.createElement('th'); th.colSpan = (f === 10 ? 3:2); th.textContent = f; hr.appendChild(th);
+        }
+        hr.appendChild(document.createElement('th')).textContent = "Total";
+        scoreboardHeader.appendChild(hr);
+
+        scoreboardBody.innerHTML = '';
+        players.forEach((player, playerIndex) => {
+            const pr = document.createElement('tr');
+            if (playerIndex === lane.currentBowlerIndex && lane.status === 'in-use') pr.classList.add('current-player-sb');
+
+            const nameTd = document.createElement('td'); nameTd.className = 'player-name-sb'; nameTd.textContent = player.name;
+            pr.appendChild(nameTd);
+
+            for (let f = 0; f < numFrames; f++) { // Display 10 frames for current game
+                const frameData = lane.scores[player.name]?.[f] || { rolls: [], frameScore: null, cumulativeScore: 0 };
+                for (let r = 0; r < (f === 9 ? 3 : 2); r++) {
+                    if (f < 9 && r > 1 && frameData.rolls[0] === 10) continue;
+                    if (f < 9 && r > 1) continue;
+
+                    const rollTd = document.createElement('td');
+                    // Display roll value directly, no input
+                    rollTd.textContent = formatRollDisplay(frameData.rolls[r], r, frameData.rolls, frameData.rolls[0]);
+                    rollTd.className = 'frame-roll' + (r + 1); // For potential styling
+
+                    if (r === 1 || (f === 9 && r === 2) || (f<9 && r===0 && frameData.rolls[0]===10 && frameData.rolls.length === 1) ) {
+                        const frameScoreDisplay = document.createElement('div');
+                        frameScoreDisplay.style.fontSize = "0.8em"; frameScoreDisplay.style.marginTop = "2px";
+                        frameScoreDisplay.textContent = (frameData.cumulativeScore > 0 || frameData.frameScore !== null) ? frameData.cumulativeScore : '';
+                        rollTd.appendChild(frameScoreDisplay);
+                    }
+                     if (f < 9 && r === 1 && frameData.rolls[0] === 10) { // Visually empty for strike's 2nd box
+                        rollTd.innerHTML = '&nbsp;'; // Keep cell structure but empty
+                        if (frameData.cumulativeScore !== null) { // Still show cumulative if calculated
+                             const frameScoreDisplay = document.createElement('div');
+                             frameScoreDisplay.style.fontSize = "0.8em"; frameScoreDisplay.style.marginTop = "2px";
+                             frameScoreDisplay.textContent = frameData.cumulativeScore;
+                             rollTd.appendChild(frameScoreDisplay);
+                        }
+                    }
+                    pr.appendChild(rollTd);
+                }
+            }
+            const totalTd = document.createElement('td'); totalTd.className = 'frame-score-sb';
+            totalTd.textContent = lane.scores[player.name]?.[numFrames-1]?.cumulativeScore || 0;
+            pr.appendChild(totalTd);
+            scoreboardBody.appendChild(pr);
+        });
+        sbCurrentBowlerName.textContent = players[lane.currentBowlerIndex]?.name || "N/A";
+        sbCurrentFrameDisp.textContent = frameInCurrentGame; // Display frame within current game (1-10)
+    }
+
+    function formatRollDisplay(roll, rollIndex, allRollsInFrame, firstRollOfFrame) {
+        if (roll === undefined || roll === null) return '';
+        if (roll === 10) return 'X';
+        if (rollIndex === 1 && firstRollOfFrame !== 10 && (firstRollOfFrame + roll === 10)) return '/';
+        if (rollIndex === 2 && allRollsInFrame[1] !== 10 && (allRollsInFrame[1] + roll === 10)) return '/'; // Spare on 3rd ball of 10th
+        if (roll === 0) return '-';
+        return roll.toString();
+    }
+
+    function calculatePlayerScores(playerName, lane) { // Pass lane object
+        const playerScores = lane.scores[playerName];
+        if (!playerScores) return;
+        let runningTotal = 0;
+        for (let i = 0; i < 10; i++) {
+            let frameScore = 0;
+            const rolls = playerScores[i]?.rolls || [];
+            const roll1 = rolls[0]; let roll2 = rolls[1]; let roll3 = rolls[2];
+
+            if (roll1 === undefined) { playerScores[i].frameScore = null; playerScores[i].cumulativeScore = runningTotal; continue; }
+
+            if (i < 9) { // Frames 1-9
+                if (roll1 === 10) { // Strike
+                    frameScore = 10;
+                    const nextFrameRolls = playerScores[i+1]?.rolls || [];
+                    const nextNextFrameRolls = playerScores[i+2]?.rolls || [];
+                    if (nextFrameRolls[0] !== undefined) {
+                        frameScore += nextFrameRolls[0];
+                        if (nextFrameRolls[0] === 10) { // Next frame is also a strike
+                            if (i + 1 < 9 && nextNextFrameRolls[0] !== undefined) frameScore += nextNextFrameRolls[0]; // Double bonus from two frames ahead
+                            else if (i + 1 === 9 && nextFrameRolls[1] !== undefined) frameScore += nextFrameRolls[1]; // Strike in 9th, bonus is 2nd roll of 10th
+                            else frameScore = null; // Bonus pending
+                        } else if (nextFrameRolls[1] !== undefined) { // Next frame is not a strike, take both rolls
+                            frameScore += nextFrameRolls[1];
+                        } else frameScore = null; // Bonus pending
+                    } else frameScore = null; // Bonus pending
+                } else if (roll2 !== undefined && roll1 + roll2 === 10) { // Spare
+                    frameScore = 10;
+                    const nextFrameRolls = playerScores[i+1]?.rolls || [];
+                    if (nextFrameRolls[0] !== undefined) frameScore += nextFrameRolls[0];
+                    else frameScore = null; // Bonus pending
+                } else if (roll1 !== undefined && roll2 !== undefined) { // Open frame
+                    frameScore = roll1 + roll2;
+                } else frameScore = null; // Frame incomplete
+            } else { // 10th Frame
+                frameScore = (roll1 || 0) + (roll2 || 0) + (roll3 || 0);
+                if (roll1 === undefined || roll2 === undefined) frameScore = null;
+                if ((roll1 === 10 || (roll1 + (roll2||0) === 10)) && roll3 === undefined) frameScore = null;
+            }
+            playerScores[i].frameScore = frameScore;
+            if (frameScore !== null) { runningTotal += frameScore; playerScores[i].cumulativeScore = runningTotal; }
+            else { playerScores[i].cumulativeScore = (i > 0 && playerScores[i-1].cumulativeScore !== null) ? playerScores[i-1].cumulativeScore : runningTotal; }
+        }
+    }
+    function updateScoreboardHeaderAndPlayers() { if (currentLaneBooking && scoreboardModal.style.display === 'block') renderScoreboardDisplay(); }
+
+    // --- Bowlers Console & Game Management ---
+    function openBowlersConsoleModal() { /* ... (Same as before, ensure it uses currentLaneBooking correctly) ... */ }
+    function openModifyPlayersFromConsole() { if (currentLaneBooking) openModifyPlayersModal(true); }
+    function markGameAsFinished() {
+        if (!currentLaneBooking || currentLaneBooking.status !== 'in-use') { alert("Select an active lane."); return; }
+        if (confirm(`Mark game on Lane ${currentLaneBooking.number} as finished and start cooldown?`)) {
+            endGameOnLane(currentLaneBooking, true); // Pass true for explicit end
+            if(laneOptionsModal.style.display === 'block') closeModal('laneOptionsModal');
+        }
+    }
+    function endGameOnLane(lane, isExplicitEnd = false) {
+        console.log(`Game ending process started for Lane ${lane.number}. Explicit: ${isExplicitEnd}`);
+        if (lane.automatedScoringTimer) { clearInterval(lane.automatedScoringTimer); lane.automatedScoringTimer = null; }
+
+        lane.gameJustEndedBlinking = true;
+        renderLanes(); // Update lane display to "Game Ending"
+        if (scoreboardModal.style.display === 'block' && currentLaneBooking === lane) renderScoreboardDisplay(); // Refresh scoreboard if open
+
+        if (lane.gameEndBlinkTimer) clearTimeout(lane.gameEndBlinkTimer);
+        lane.gameEndBlinkTimer = setTimeout(() => {
+            lane.gameJustEndedBlinking = false;
+            console.log(`Blinking finished for Lane ${lane.number}. Starting final cooldown.`);
+            setTimeout(() => {
+                if (lane.status === 'in-use') { // Check status again in case cleared by other means
+                     finishLaneEarly(lane.id, false); // Auto clear after cooldown
+                }
+            }, GAME_END_COOLDOWN_MS - GAME_END_BLINK_DURATION_MS); // Remaining cooldown after blinking
+            renderLanes(); // Update lane display from "Game Ending" to "In Use" (until cooldown finishes) or "Available"
+        }, GAME_END_BLINK_DURATION_MS);
+    }
+    function finishLaneEarly(laneIdToClear = null, showConfirm = true) {
+        const laneToFinalize = laneIdToClear ? lanesData.find(l => l.id === laneIdToClear) : currentLaneBooking;
+        if (!laneToFinalize || laneToFinalize.status === 'available') return;
+        function doClear() {
+            if (laneToFinalize.automatedScoringTimer) { clearInterval(laneToFinalize.automatedScoringTimer); laneToFinalize.automatedScoringTimer = null; }
+            if (laneToFinalize.gameEndBlinkTimer) { clearTimeout(laneToFinalize.gameEndBlinkTimer); laneToFinalize.gameEndBlinkTimer = null;}
+            laneToFinalize.gameJustEndedBlinking = false;
+            Object.assign(laneToFinalize, { status: 'available', players: [], numGames: 0, gameStartTime: null, currentTotal: 0, bumpersInfo: {}, scores: {}, currentBowlerIndex: 0, currentFrame: 1, pinsStanding: 10, gameLog: [] });
+            renderLanes();
+            if (scoreboardModal.style.display === 'block' && currentLaneBooking === laneToFinalize) closeModal('scoreboardModal');
+            if (laneOptionsModal.style.display === 'block' && currentLaneBooking === laneToFinalize) closeModal('laneOptionsModal');
+            alert(`Lane ${laneToFinalize.number} is now available.`);
+        }
+        if (showConfirm) { if (confirm(`Clear Lane ${laneToFinalize.number}? This will end any active game.`)) doClear(); }
+        else { doClear(); }
+    }
+
+    // --- Automated Scoring Simulation ---
+    function startAutomatedScoring(lane) {
+        if (lane.automatedScoringTimer) clearInterval(lane.automatedScoringTimer); // Clear existing if any
+        lane.automatedScoringTimer = setInterval(() => {
+            simulateAutomatedRoll(lane);
+        }, AUTOMATED_SCORING_INTERVAL_MS);
+        console.log(`Automated scoring started for Lane ${lane.number}`);
+    }
+
+    function simulateAutomatedRoll(lane) {
+        if (lane.status !== 'in-use' || !lane.players || lane.players.length === 0) {
+            if (lane.automatedScoringTimer) clearInterval(lane.automatedScoringTimer);
+            return;
+        }
+
+        const totalFramesToPlay = 10 * lane.numGames;
+        if (lane.currentFrame > totalFramesToPlay) {
+            if (!lane.gameJustEndedBlinking) endGameOnLane(lane);
+            return;
+        }
+
+        const player = lane.players[lane.currentBowlerIndex];
+        if (!player) return; // Should not happen if players exist
+
+        const frameArrayIndex = (lane.currentFrame - 1) % 10; // 0-9 for scores array for the current game
+        if (!lane.scores[player.name][frameArrayIndex]) {
+             lane.scores[player.name][frameArrayIndex] = { rolls: [], frameScore: null, cumulativeScore: 0 };
+        }
+        const currentFrameRolls = lane.scores[player.name][frameArrayIndex].rolls;
+        let rollsTakenThisFrameLogic = currentFrameRolls.length;
+
+        // Determine if this player's turn in this frame is over
+        let playerTurnOver = false;
+        if (frameArrayIndex < 9) { // Frames 1-8
+            if (currentFrameRolls[0] === 10) playerTurnOver = true; // Strike
+            else if (rollsTakenThisFrameLogic >= 2) playerTurnOver = true; // Two rolls
+        } else { // 10th Frame
+            if (currentFrameRolls[0] === 10 || (currentFrameRolls[0] + (currentFrameRolls[1]||0) === 10) ) { // Strike or Spare
+                if (rollsTakenThisFrameLogic >= 3) playerTurnOver = true;
+            } else { // Open 10th
+                if (rollsTakenThisFrameLogic >= 2) playerTurnOver = true;
+            }
+        }
+
+        if (playerTurnOver) { // Should advance turn, but this check is a safeguard if called too quickly
+            advanceTurnAutomated(lane); // Ensure it advances if stuck
+            return;
+        }
+
+        let pinsHit = Math.floor(Math.random() * (lane.pinsStanding + 1));
+        // Apply bumper logic if active for player
+        if (player.bumpers && lane.pinsStanding < 10 && Math.random() < 0.6) { // 60% chance bumper helps avoid gutter
+            if (pinsHit < 2 && lane.pinsStanding > 3) pinsHit = Math.floor(Math.random() * 3) + 1; // Small bump
+        }
+
+
+        currentFrameRolls.push(pinsHit);
+        lane.pinsStanding -= pinsHit;
+        if (lane.pinsStanding < 0) lane.pinsStanding = 0;
+
+        // If it's a strike (not in 10th frame, 1st roll) or end of 2 rolls, or 3rd roll in 10th
+        let advance = false;
+        if (frameArrayIndex < 9) { // Frames 1-9
+            if (currentFrameRolls[0] === 10) advance = true; // Strike
+            else if (currentFrameRolls.length >= 2) advance = true; // Two rolls
+        } else { // 10th Frame
+            if (currentFrameRolls.length === 1 && currentFrameRolls[0] === 10) lane.pinsStanding = 10; // Reset for 2nd roll after strike
+            else if (currentFrameRolls.length === 2 && (currentFrameRolls[0] === 10 || currentFrameRolls[0] + currentFrameRolls[1] === 10)) lane.pinsStanding = 10; // Reset for 3rd roll after strike/spare
+            
+            if (currentFrameRolls[0] === 10 || (currentFrameRolls[0] + (currentFrameRolls[1]||0) === 10) ) { // Strike or Spare
+                if (currentFrameRolls.length >= 3) advance = true;
+            } else { // Open 10th
+                if (currentFrameRolls.length >= 2) advance = true;
+            }
+        }
+
+        calculatePlayerScores(player.name, lane);
+        if (scoreboardModal.style.display === 'block' && currentLaneBooking === lane) renderScoreboardDisplay();
+        if (bowlersConsoleModal.style.display === 'block' && currentLaneBooking === lane) openBowlersConsoleModal();
+
+
+        if (advance) {
+            advanceTurnAutomated(lane);
+        }
+        // console.log(`Lane ${lane.number}, P: ${player.name}, F: ${lane.currentFrame}, Roll: ${pinsHit}, Standing: ${lane.pinsStanding}`);
+    }
+
+    function advanceTurnAutomated(lane) {
+        lane.currentBowlerIndex++;
+        lane.pinsStanding = 10;
+        if (lane.currentBowlerIndex >= lane.players.length) {
+            lane.currentBowlerIndex = 0;
+            lane.currentFrame++; // This is the overall frame for the booking
+            // console.log(`--- Lane ${lane.number} advancing to Frame ${lane.currentFrame} ---`);
+        }
+        const totalFramesToPlay = 10 * lane.numGames;
+        if (lane.currentFrame > totalFramesToPlay) {
+            if (!lane.gameJustEndedBlinking) endGameOnLane(lane);
+        }
+        // Update displays if open
+        if (scoreboardModal.style.display === 'block' && currentLaneBooking === lane) renderScoreboardDisplay();
+        if (bowlersConsoleModal.style.display === 'block' && currentLaneBooking === lane) openBowlersConsoleModal();
+    }
+
+    // --- Modal Global Handling ---
+    function openModal(modalId) { document.getElementById(modalId).style.display = 'block'; }
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+        if (modalId === 'eftTerminalModal') resetEftTerminal();
+        // Reset payment modal sections when closed
+        if (modalId === 'paymentModal') {
+            cashPaymentDetailsDiv.classList.add('hidden');
+            cardPaymentOptionsDiv.classList.add('hidden');
+            paymentMethodSelected = null;
+            voucherCodeInput.value = "";
+            voucherStatusP.textContent = "";
+            activeVoucherDiscount = 0;
+        }
+    }
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) closeModal(modal.id);
+        });
+    });
+
+    window.addEventListener('DOMContentLoaded', initializeApp);
+</script>
+</body>
+</html>
